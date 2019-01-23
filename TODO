@@ -1,0 +1,11 @@
+* TODO Follow tdd
+* DONE make a item class
+**  DONE make the properties called status and description and statuses
+**  DONE make method to toggle the status
+**  DONE make method to edit the description
+**  DONE write tests for the item class 
+* TODO make a list class
+**  TODO make the properties called title and description
+**  TODO make method to add description
+**  TODO make method to delete description
+**  TODO make method to edit the title
