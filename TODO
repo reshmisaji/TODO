@@ -11,8 +11,8 @@
 **  DONE give behaviour to add items
 **  DONE give behaviour to delete items
 **  DONE give behaviour to edit the title
-* TODO build a page of todolist
+* DONE build a page of todolist
 **  DONE design the html of the page
-**  TODO onload it should fetch and show the data
+**  DONE onload it should fetch and show the data
 **  DONE add a framework
-**  TODO write tests for that framework
+**  DONE write tests for that framework

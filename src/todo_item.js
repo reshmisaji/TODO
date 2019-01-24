@@ -15,3 +15,5 @@ class Item {
     this.description = description;
   }
 }
+
+module.exports = Item;

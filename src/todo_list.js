@@ -19,3 +19,5 @@ class List {
     this.title = title;
   }
 }
+
+module.exports = List;

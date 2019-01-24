@@ -26,7 +26,7 @@ class Express {
   handleRequest(req, res) {
     let matchingRoutes = this.routes.filter(r => isMatching(req, r));
     let remaining = [...matchingRoutes];
-
+    
     let next = () => {
       let current = remaining[0];
       if (!current) return;

@@ -3,6 +3,28 @@ const { Express, isMatching } = require("../../src/app/express");
 
 const express = new Express();
 
+/**
+ * mock functions
+ */
+
+ const useHandler = function(req, res, next){
+   //do something
+   next();
+ }
+
+ const getHandler = function(req, res){
+   //do domething
+ }
+
+ const postHandler = function(req, res){
+   //do something
+ }
+
+ /**
+  * mock functions end
+  */
+
+
 describe("isMatching", () => {
   it("should return true if url and method are same for request and route", () => {
     const request = { url: "/", method: "POST" };
@@ -45,9 +67,9 @@ describe("use", () => {
   });
 
   it("should give the new routes if something is used", () => {
-    express.use("sample");
+    express.use(useHandler);
     const actualOutput = express.routes;
-    const expextedOutput = [{ handler: "sample" }];
+    const expextedOutput = [{ handler: useHandler }];
     chai.expect(actualOutput).to.be.deep.equal(expextedOutput);
   });
 });
@@ -55,16 +77,16 @@ describe("use", () => {
 describe(" post", () => {
   it("should give the previous routes if get is not called", () => {
     const actualOutput = express.routes;
-    const expextedOutput = [{ handler: "sample" }];
+    const expextedOutput = [{ handler: useHandler }];
     chai.expect(actualOutput).to.be.deep.equal(expextedOutput);
   });
 
   it("should give the new routes if get is called with something", () => {
-    express.get("/", "something");
+    express.get("/", getHandler);
     const actualOutput = express.routes;
     const expextedOutput = [
-      { handler: "sample" },
-      { method: "GET", url: "/", handler: "something" }
+      { handler: useHandler },
+      { method: "GET", url: "/", handler: getHandler }
     ];
     chai.expect(actualOutput).to.be.deep.equal(expextedOutput);
   });
@@ -74,19 +96,19 @@ describe("post", () => {
   it("should give the previous routes if post is not called", () => {
     const actualOutput = express.routes;
     const expextedOutput = [
-      { handler: "sample" },
-      { method: "GET", url: "/", handler: "something" }
+      { handler: useHandler },
+      { method: "GET", url: "/", handler: getHandler }
     ];
     chai.expect(actualOutput).to.be.deep.equal(expextedOutput);
   });
 
   it("should give the new routes if post is called with something", () => {
-    express.post("/", "something");
+    express.post("/", postHandler);
     const actualOutput = express.routes;
     const expextedOutput = [
-      { handler: "sample" },
-      { method: "GET", url: "/", handler: "something" },
-      { method: "POST", url: "/", handler: "something" }
+      { handler: useHandler },
+      { method: "GET", url: "/", handler: getHandler },
+      { method: "POST", url: "/", handler: postHandler}
     ];
     chai.expect(actualOutput).to.be.deep.equal(expextedOutput);
   });
