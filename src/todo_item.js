@@ -11,7 +11,7 @@ class Item {
       .join("");
   }
 
-  edit(description){
+  edit(description) {
     this.description = description;
   }
 }

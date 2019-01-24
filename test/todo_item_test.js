@@ -16,3 +16,16 @@ describe('toggleStatus',() => {
     chai.expect(item.status).to.be.equal('Done');
   })
 });
+
+describe('edit',() => {
+  it('should give the previous description if nothing changes',() => {
+    const description = 'this is some text';
+    chai.expect(item.description).to.be.equal(description);
+  });
+
+  it('should give the new description if description is changed',()=>{
+    const description = 'something';
+    item.edit(description);
+    chai.expect(item.description).to.be.equal(description);
+  })
+});

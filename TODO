@@ -1,11 +1,13 @@
 * TODO Follow tdd
-* DONE make a item class
+* DONE make a item entity
 **  DONE make the properties called status and description and statuses
-**  DONE make method to toggle the status
-**  DONE make method to edit the description
-**  DONE write tests for the item class 
-* TODO make a list class
-**  TODO make the properties called title and description
-**  TODO make method to add description
-**  TODO make method to delete description
-**  TODO make method to edit the title
+**  DONE give behaviour to toggle the status
+**  DONE give behaviour to edit the description
+**  DONE write tests for the item entity 
+**  DONE write test for editing behaviour 
+* DONE make a list entity
+**  DONE write tests for the list entity
+**  DONE make the properties called title and items
+**  DONE give behaviour to add items
+**  DONE give behaviour to delete items
+**  DONE give behaviour to edit the title
