@@ -4,14 +4,17 @@ const ERROR_404 = "404: Resource Not Found";
 const ERROR_500 = "500: Internal Server Error";
 
 const getRequestedFilePath = function(url) {
-  const requestedFilePath = `.${url}`;
-  return requestedFilePath;
+  return `.${url}`;
 };
 
 const send = function(res, data, statusCode = 200) {
   res.statusCode = statusCode;
   res.write(data);
   res.end();
+};
+
+const isFileNotFound = function(errorCode) {
+  return errorCode == "ENOENT";
 };
 
 const serveData = function(res, fileContent) {
@@ -26,8 +29,10 @@ const serveData = function(res, fileContent) {
   }
 };
 
-const isFileNotFound = function(errorCode) {
-  return errorCode == "ENOENT";
+const serveFile = function(cache, req, res) {
+  const requestedFilePath = getRequestedFilePath(req.url);
+  const fileContent = cache[requestedFilePath];
+  serveData(res, fileContent);
 };
 
 const splitKeyValue = pair => pair.split("=");
@@ -71,7 +76,7 @@ const addTodo = function(fs, lists, cache, req, res) {
   append(todoList, lists);
   fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
   renderTodoList(cache, req, res);
-}
+};
 
 const serveTodos = function(lists, req, res) {
   send(res, JSON.stringify(lists.lists), 200);
@@ -89,12 +94,6 @@ const serveAddTodoForm = function(cache, req, res) {
   send(res, cache["./todoForm.html"], 200);
 };
 
-const serveFile = function(cache, req, res) {
-  const requestedFilePath = getRequestedFilePath(req.url);
-  const fileContent = cache[requestedFilePath];
-  serveData(res, fileContent);
-};
-
 module.exports = {
   readBody,
   renderTodoList,
@@ -103,5 +102,12 @@ module.exports = {
   serveAddItemPage,
   serveAddTodoForm,
   serveFile,
-  send
+  send,
+  serveData,
+  isFileNotFound,
+  getRequestedFilePath,
+  splitKeyValue,
+  readArgs,
+  initialiseNewList,
+  append
 };
