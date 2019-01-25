@@ -1,3 +1,7 @@
+const chai = require('chai');
+const Item = require('../src/todo_item');
+const List = require('../src/todo_list');
+
 const item1 = new Item('Talk to Jaynath');
 const item2 = new Item('Have breakfast');
 const todoItems = [item1, item2];

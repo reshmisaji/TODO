@@ -1,4 +1,4 @@
-const { send, readFiles,todoList } = require("../../src/app/app");
+const { send } = require("../../src/app/handlers");
 const chai = require("chai");
 
 const res = {

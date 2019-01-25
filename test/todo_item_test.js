@@ -1,3 +1,6 @@
+const chai = require('chai');
+const Item = require('../src/todo_item');
+
 const item = new Item('this is some text');
 
 describe('toggleStatus',() => {
