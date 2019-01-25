@@ -16,3 +16,4 @@
 **  DONE onload it should fetch and show the data
 **  DONE add a framework
 **  DONE write tests for that framework
+* TODO Don't use fs as a global object, inject it 

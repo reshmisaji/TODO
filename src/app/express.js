@@ -24,7 +24,7 @@ class Express {
    * @param {Object} res - response given from the server
    */
   handleRequest(req, res) {
-    let matchingRoutes = this.routes.filter(r => isMatching(req, r));
+    let matchingRoutes = this.routes.filter(route => isMatching(req, route));
     let remaining = [...matchingRoutes];
     
     let next = () => {
