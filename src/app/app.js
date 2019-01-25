@@ -18,15 +18,35 @@ const fs = require("fs");
 
 let lists;
 
-const readTodo = function(fs) {
+const readTodoFile = function(fs) {
   if (!fs.existsSync("./todos.json")) {
     fs.writeFileSync("./todos.json", "[]", () => {});
   }
-  const content = JSON.parse(fs.readFileSync("./todos.json"));
-  content.forEach(list => {
-    list.items = list.items.map(item => new Item(item.description));
+  return JSON.parse(fs.readFileSync("./todos.json"));
+};
+
+const initialiseListItems = function(content) {
+  content.forEach(user =>
+    user.lists.forEach(list => {
+      list.items = list.items.map(item => new Item(item.description));
+    })
+  );
+  return content;
+};
+
+const initialiseTodoLists = function(content) {
+  let todos;
+  content.forEach(user => {
+    user.lists = user.lists.map(list => new List(list.title, list.items));
+    todos = user.lists;
   });
-  const todos = content.map(list => new List(list.title, list.items));
+  return todos || [];
+};
+
+const readTodo = function(fs) {
+  let content = readTodoFile(fs);
+  content = initialiseListItems(content);
+  let todos = initialiseTodoLists(content);
   lists = new Lists("Ankon", todos);
 };
 
