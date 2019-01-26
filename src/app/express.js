@@ -3,7 +3,7 @@
  * @param {Object} req - requested URL
  * @param {Object} route - one of the routes to the server
  */
-
+ 
 const isMatching = (req, route) => {
   if (route.method && req.method != route.method) return false;
   if (route.url instanceof RegExp && route.url.test(req.url)) return true;

@@ -24,11 +24,14 @@ const createHTML = function(data) {
     .join("");
 };
 
-const updateList = function(){
-  const item = document.getElementById('item').value;
+const updateList = function() {
+  const item = document.getElementById("item").value;
   const listName = event.target.parentElement.innerText;
-  fetch('/addItem',{method:'POST',body:JSON.stringify({item,listName})})
-}
+  fetch("/addItem", {
+    method: "POST",
+    body: JSON.stringify({ item, listName })
+  });
+};
 
 const addItem = function() {
   const title = event.target.parentElement.innerText;
@@ -40,7 +43,10 @@ const addItem = function() {
 const initialize = function() {
   fetch("/todos")
     .then(res => res.json())
-    .then(result => {console.log(result); return createHTML(result)})
+    .then(result => {
+      console.log(result);
+      return createHTML(result);
+    })
     .then(html => displayData(html));
 };
 

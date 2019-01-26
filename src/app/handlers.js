@@ -65,7 +65,7 @@ const readBody = function(req, res, next) {
     req.body = content;
     next();
   });
-};
+}; //tests are pending
 
 const renderTodoList = function(cache, req, res) {
   send(res, cache["./todolist.html"], 200);
@@ -76,7 +76,7 @@ const addTodo = function(fs, lists, cache, req, res) {
   append(todoList, lists);
   fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
   renderTodoList(cache, req, res);
-};
+}; //tests are pending
 
 const serveTodos = function(lists, req, res) {
   send(res, JSON.stringify(lists.lists), 200);

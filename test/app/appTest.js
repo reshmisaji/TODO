@@ -7,20 +7,22 @@ const {
   splitKeyValue,
   readArgs,
   initialiseNewList,
-  append
+  append,
+  renderTodoList,
+  serveTodos,
+  serveAddItemPage,
+  serveAddTodoForm
 } = require("../../src/app/handlers");
-
-// const Item = require('../../src/todo_item');
-// const List = require('../../src/todo_list');
-const Lists = require("../../src/todo_lists");
-// const item = new Item('something');
-// const list = new List('Office',[item]);
-const lists = new Lists("Ankon", []);
-
 const chai = require("chai");
 
+const Lists = require("../../src/todo_lists");
+const lists = new Lists("Ankon", []);
+
 const cache = {
-  "./": "something"
+  "./": "something",
+  "./todolist.html": "this is todo list",
+  "./addItem.html": "#title# this is the add item form",
+  "./todoForm.html": "this is the add todo form"
 };
 
 const res = {
@@ -201,38 +203,40 @@ describe("append", () => {
     chai.expect(actualOutput).to.be.deep.equal(expectedOutput);
   });
 });
-// describe('readFiles',() => {
-//   it('should get the contents of the given file ',() => {
-//     readFiles(req,res,()=>{});
-//     const actualOutput = todoList;
-//     const expectedOutput = `<!DOCTYPE html>
-//     <html>
-//     <head>
-//       <title>todo list</title>
-//       <script src="main.js"></script>
-//     </head>
-//     <body>
-//       <header>TODO LISTS</header>
-//       <main id="mainContainer"></main>
-//     </body>
-//     </html>`;
-//     chai.expect(actualOutput).to.be.equal(expectedOutput);
-//   });
-// });
 
-// describe("renderTodoList", () => {
-//   it("should give the content for the file requested", () => {
-//     renderTodoList(req, res);
-//     const actualOutput = res.body;
-//     const expectedOutput = "something else";
-//     chai.expect(actualOutput).to.be.equal(expectedOutput);
-//   });
+describe("renderTodoList", function() {
+  it("should return the content in the './todolist.html' path in the cache", function() {
+    renderTodoList(cache, req, res);
+    const actualOutput = res.body;
+    const expectedOutput = "this is todo list";
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  });
+});
 
-//   it("should give the error if the file doesn't exists", () => {
-//     req.url = '/todoList';
-//     renderTodoList(req, res);
-//     const actualOutput = res.body;
-//     const expectedOutput = "page not found";
-//     chai.expect(actualOutput).to.be.equal(expectedOutput);
-//   });
-// });
+describe("serveTodos", function() {
+  it("should give the lists in the response body", function() {
+    serveTodos(lists, req, res);
+    actualOutput = res.body;
+    expectedOutput = `[{"title":"test","items":[{"description":"something","statuses":["TODO","Done"],"status":"TODO"}]}]`;
+    chai.expect(actualOutput).to.be.deep.equal(expectedOutput);
+  });
+});
+
+describe("serveAddItemPage", function() {
+  it("should gave the content of './addItem.html' in the response body ", function() {
+    req.body = "Add item";
+    serveAddItemPage(cache, req, res);
+    const actualOutput = res.body;
+    const expectedOutput = "Add item this is the add item form";
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  });
+});
+
+describe("serveAddTodoForm", function() {
+  it("should gave  the contents of './todoForm.html' in the response body ", function() {
+    serveAddTodoForm(cache, req, res);
+    const actualOutput = res.body;
+    const expectedOutput = "this is the add todo form";
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  });
+});
