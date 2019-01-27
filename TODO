@@ -17,8 +17,9 @@
 **  DONE add a framework
 **  DONE write tests for that framework
 * DONE Don't use fs as a global object, inject it 
-* TODO pass the cache not use it globally
-* TODO use our model in more significant way
-* TODO add tests for app
-* TODO have another entity to hold all the lists
+* DONE pass the cache not use it globally
+* DONE use our model in more significant way
+* DONE add tests for handler
+* DONE have another entity to hold all the lists
+* DONE add tests for app
 * TODO handle post request to /addItem

@@ -20,7 +20,7 @@ let lists;
 
 const readTodoFile = function(fs) {
   if (!fs.existsSync("./todos.json")) {
-    fs.writeFileSync("./todos.json", "[]", () => {});
+    fs.writeFileSync("./todos.json", "[]");
   }
   return JSON.parse(fs.readFileSync("./todos.json"));
 };
@@ -71,4 +71,4 @@ app.get("/add?", serveAddTodoForm.bind(null, cache));
 app.use(serveFile.bind(null, cache));
 
 const requestHandler = app.handleRequest.bind(app);
-module.exports = { requestHandler };
+module.exports = { requestHandler,readTodoFile,initialiseListItems,initialiseTodoLists };
