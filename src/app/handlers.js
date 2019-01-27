@@ -21,11 +21,7 @@ const serveData = function(res, fileContent) {
   try {
     send(res, fileContent, 200);
   } catch (err) {
-    if (isFileNotFound(err.code)) {
-      send(res, ERROR_404, 404);
-      return;
-    }
-    send(res, ERROR_500, 500);
+    send(res, ERROR_404, 404);
   }
 };
 
@@ -65,7 +61,7 @@ const readBody = function(req, res, next) {
     req.body = content;
     next();
   });
-}; //tests are pending
+};
 
 const renderTodoList = function(cache, req, res) {
   send(res, cache["./todolist.html"], 200);

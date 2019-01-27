@@ -8,16 +8,16 @@ const express = new Express();
  */
 
  const useHandler = function(req, res, next){
-   //do something
+   res.body='use';
    next();
  }
 
  const getHandler = function(req, res){
-   //do domething
+   res.body = 'get';
  }
 
  const postHandler = function(req, res){
-   //do something
+  res.body = 'post';
  }
 
  /**
@@ -112,4 +112,34 @@ describe("post", () => {
     ];
     chai.expect(actualOutput).to.be.deep.equal(expextedOutput);
   });
+});
+
+describe('handleRequst',() => {
+  it('should call use handler if requested url doesnt match',()=>{
+    const req = {url:'/todoList', method: 'GET'};
+    const res = {};
+    express.handleRequest(req, res);
+    const actualOutput = res.body;
+    const expextedOutput = 'use';
+    chai.expect(actualOutput).to.be.equal(expextedOutput);
+  })
+  
+  it('should call use and get handlers if requested url match and request method is get',()=>{
+    const req = {url:'/', method: 'GET'};
+    const res = {};
+    express.handleRequest(req, res);
+    const actualOutput = res.body;
+    const expextedOutput = 'get';
+    chai.expect(actualOutput).to.be.equal(expextedOutput);
+  })
+  
+  it('should call use and post handlers if requested url match and request method is post',()=>{
+    const req = {url:'/', method: 'POST'};
+    const res = {};
+    express.handleRequest(req, res);
+    const actualOutput = res.body;
+    const expextedOutput = 'post';
+    chai.expect(actualOutput).to.be.equal(expextedOutput);
+  })
+
 });

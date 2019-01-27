@@ -11,8 +11,11 @@ const {
   renderTodoList,
   serveTodos,
   serveAddItemPage,
-  serveAddTodoForm
+  serveAddTodoForm,
+  readBody, 
+  addTodo
 } = require("../../src/app/handlers");
+
 const chai = require("chai");
 
 const Lists = require("../../src/todo_lists");
@@ -32,13 +35,22 @@ const res = {
     this.body = data;
   },
   end: function() {
-    if (this.body == undefined) throw { code: "ENOENT" };
+    if (this.body == undefined) throw new Error();
     return this.body;
   }
 };
 
 const req = {
-  url: "/"
+  url: "/",
+  body:'',
+  on: (event, callback) => {
+    if(event == 'data'){
+      callback('data');
+    }
+    if(event == 'end'){
+      callback();
+    }
+  }
 };
 
 const files = {
@@ -53,6 +65,10 @@ const fs = {
     }
     const content = files[path];
     callback(error, content);
+  },
+  writeFile: function(path, data, callback){
+    files[path] = data;
+    callback();
   }
 };
 
@@ -239,4 +255,28 @@ describe("serveAddTodoForm", function() {
     const expectedOutput = "this is the add todo form";
     chai.expect(actualOutput).to.be.equal(expectedOutput);
   });
+});
+
+describe('readBody',() => {
+  it('should give the content in request body',() => {
+    readBody(req, res, ()=>{});
+    const actualOutput = req.body;
+    const expectedOutput = 'data';
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  });
+});
+
+describe('addTodo',() => {
+  it('should give the todo list',() => {
+    addTodo(fs, lists, cache, req, res);
+    const actualOutput = res.body;
+    const expectedOutput = 'this is todo list';
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  });
+  
+  it('should write data to the path',()=>{
+    const actualOutput = files['./todos.json'];
+    const expectedOutput = `[{"userName":"Ankon","lists":[{"title":"test","items":[{"description":"something","statuses":["TODO","Done"],"status":"TODO"}]},{"items":[{"statuses":["TODO","Done"],"status":"TODO"}]}]}]`;
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  })
 });
