@@ -9,7 +9,9 @@ const {
   serveTodos,
   serveAddItemPage,
   serveAddTodoForm,
-  serveFile
+  serveFile,
+  addItem,
+  logRequest
 } = require("./handlers");
 
 const { Express } = require("./express");
@@ -63,12 +65,19 @@ const filesToRead = fs.readdirSync("./public");
 filesToRead.forEach(addCache.bind(null, fs));
 
 app.use(readBody);
-app.get("/todoList", renderTodoList.bind(null, cache));
+app.use(logRequest);
 app.post("/todoList", addTodo.bind(null, fs, lists, cache));
+app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
+app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
 app.get("/todos", serveTodos.bind(null, lists));
-app.post("/addItemToList", serveAddItemPage.bind(null, cache));
+app.get("/todoList", renderTodoList.bind(null, cache));
 app.get("/add?", serveAddTodoForm.bind(null, cache));
 app.use(serveFile.bind(null, cache));
 
 const requestHandler = app.handleRequest.bind(app);
-module.exports = { requestHandler,readTodoFile,initialiseListItems,initialiseTodoLists };
+module.exports = {
+  requestHandler,
+  readTodoFile,
+  initialiseListItems,
+  initialiseTodoLists
+};

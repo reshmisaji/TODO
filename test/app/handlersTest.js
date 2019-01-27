@@ -12,8 +12,11 @@ const {
   serveTodos,
   serveAddItemPage,
   serveAddTodoForm,
-  readBody, 
-  addTodo
+  readBody,
+  addTodo,
+  extractTitle,
+  addItem,
+  updateTodoList
 } = require("../../src/app/handlers");
 
 const chai = require("chai");
@@ -42,12 +45,12 @@ const res = {
 
 const req = {
   url: "/",
-  body:'',
+  body: "",
   on: (event, callback) => {
-    if(event == 'data'){
-      callback('data');
+    if (event == "data") {
+      callback("data");
     }
-    if(event == 'end'){
+    if (event == "end") {
       callback();
     }
   }
@@ -63,10 +66,10 @@ const fs = {
     if (!files[path]) {
       error = "error";
     }
-    const content = files[path];
+    const arguments = files[path];
     callback(error, content);
   },
-  writeFile: function(path, data, callback){
+  writeFile: function(path, data, callback) {
     files[path] = data;
     callback();
   }
@@ -240,7 +243,7 @@ describe("serveTodos", function() {
 
 describe("serveAddItemPage", function() {
   it("should gave the content of './addItem.html' in the response body ", function() {
-    req.body = "Add item";
+    req.url = "/something?Add item";
     serveAddItemPage(cache, req, res);
     const actualOutput = res.body;
     const expectedOutput = "Add item this is the add item form";
@@ -257,26 +260,74 @@ describe("serveAddTodoForm", function() {
   });
 });
 
-describe('readBody',() => {
-  it('should give the content in request body',() => {
-    readBody(req, res, ()=>{});
+describe("readBody", () => {
+  it("should give the content in request body", () => {
+    readBody(req, res, () => {});
     const actualOutput = req.body;
-    const expectedOutput = 'data';
+    const expectedOutput = "data";
     chai.expect(actualOutput).to.be.equal(expectedOutput);
   });
 });
 
-describe('addTodo',() => {
-  it('should give the todo list',() => {
+describe("addTodo", () => {
+  it("should give the todo list", () => {
+    req.body = "title=something&item=else";
     addTodo(fs, lists, cache, req, res);
     const actualOutput = res.body;
-    const expectedOutput = 'this is todo list';
+    const expectedOutput = "this is todo list";
     chai.expect(actualOutput).to.be.equal(expectedOutput);
   });
-  
-  it('should write data to the path',()=>{
-    const actualOutput = files['./todos.json'];
-    const expectedOutput = `[{"userName":"Ankon","lists":[{"title":"test","items":[{"description":"something","statuses":["TODO","Done"],"status":"TODO"}]},{"items":[{"statuses":["TODO","Done"],"status":"TODO"}]}]}]`;
+
+  it("should write data to the path", () => {
+    const actualOutput = files["./todos.json"];
+    const expectedOutput = `[{"userName":"Ankon","lists":[{"title":"test","items":[{"description":"something","statuses":["TODO","Done"],"status":"TODO"}]},{"title":"something","items":[{"description":"else","statuses":["TODO","Done"],"status":"TODO"}]}]}]`;
     chai.expect(actualOutput).to.be.equal(expectedOutput);
-  })
+  });
 });
+
+describe("extractTitle", () => {
+  it("should give the title extracted from the arguments", () => {
+    const args = "something?new";
+    const actualOutput = extractTitle(args);
+    const expectedOutput = "new";
+    chai.expect(actualOutput).to.be.equal(expectedOutput);
+  });
+});
+
+describe("updateTodoList", () => {
+  it("should give the previous list if updateList is not called", () => {
+    const actualOutput = lists;
+    const expectedOutput = {
+      userName: "Ankon",
+      lists: [
+        {
+          title: "test",
+          items: [
+            {
+              description: "something",
+              statuses: ["TODO", "Done"],
+              status: "TODO"
+            }
+          ]
+        },
+        {
+          title: "something",
+          items: [
+            {
+              description: "else",
+              statuses: ["TODO", "Done"],
+              status: "TODO"
+            }
+          ]
+        }
+      ]
+    };
+    chai.expect(actualOutput).to.be.deep.equal(expectedOutput);
+  });
+});
+
+// describe('addItem',() => {
+//   it('should',() => {
+//     // Code
+//   });
+// });

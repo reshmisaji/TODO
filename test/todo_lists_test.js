@@ -59,3 +59,21 @@ describe('deleteList',() => {
   });
 
 });
+
+describe('updateList',() => {
+  it('should give the previous list if nothing is updated',() => {
+    const actualOutput = lists.lists;
+    const expectedOutput = [];
+    chai.expect(actualOutput).to.be.deep.equal(expectedOutput);
+  });
+  
+  it('should update the list given',()=>{
+    lists.addList(list1);
+    const listToUpdate = new List("random", [item1, item2, item3, item4]);
+    lists.updateList(listToUpdate);
+    const actualOutput = lists.lists;
+    const expectedOutput = [listToUpdate];
+    chai.expect(actualOutput).to.be.deep.equal(expectedOutput);
+  })
+
+});

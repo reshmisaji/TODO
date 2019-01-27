@@ -57,6 +57,13 @@ describe("isMatching", () => {
     const actualOutput = isMatching(request, route);
     chai.assert.equal(actualOutput, expextedOutput);
   });
+  it('should return true if route url is regex and it is a part of given url',()=>{
+    const request = {url:'/addItem?someName', method:'POST'};
+    const routes = {url:/\/addItem/, method:'POST'};
+    const actualOutput = isMatching(request, routes);
+    const expextedOutput = true;
+    chai.expect(actualOutput).to.be.equal(expextedOutput);
+  })
 });
 
 describe("use", () => {

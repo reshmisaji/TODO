@@ -6,8 +6,12 @@
   </head>
   <body>
     <header><h1>Update TODO List</h1></header>
-    <main>#title#<input type="text" id="item" name="item" />
-      <input type="submit" value="Add" onclick="updateList()" />
+    <main>
+      #title#
+      <form action="/addItem?#title#" method="POST">
+        <input type="text" id="item" name="item" />
+        <input type="submit" value="Add" />
+      </form>
     </main>
   </body>
 </html>
