@@ -11,6 +11,10 @@ const logRequest = (req, res, next) => {
   next();
 };
 
+const decodeData = function(data){
+  return unescape(data.replace(/\+/g,' '));
+}
+
 const send = function(res, data, statusCode = 200) {
   res.statusCode = statusCode;
   res.write(data);
@@ -54,6 +58,7 @@ const initialiseNewList = function(todo) {
 };
 
 const append = function(todoList, lists) {
+  todoList = decodeData(todoList);
   const list = initialiseNewList(todoList);
   lists.addList(list);
 };
@@ -107,11 +112,14 @@ const updateTodoList = function(lists, title, item) {
 
 const addItem = function(fs, lists, cache, req, res) {
   const postData = readArgs(req.body);
-  const item = new Item(postData.item);
+  const decodedItem = decodeData(postData.item);
+  const item = new Item(decodedItem);
   const title = extractTitle(req.url);
   const updatedLists = updateTodoList(lists, title, item);
   fs.writeFile("./todos.json", JSON.stringify([updatedLists]), () => {});
-  renderTodoList(cache, req, res);
+  res.statusCode = 302;
+  res.setHeader('location', '/todoList');
+  res.end();
 };
 
 module.exports = {
