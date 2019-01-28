@@ -59,8 +59,13 @@ const initialiseNewList = function(todo) {
 
 const append = function(todoList, lists) {
   const listDetails = decodeData(JSON.stringify(todoList));
-  const list = initialiseNewList(JSON.parse(listDetails));
-  lists.addList(list);
+  const newList = initialiseNewList(JSON.parse(listDetails));
+  const listToAdd = lists.lists.filter(list => list.title == newList.title)[0];
+  if (listToAdd == undefined) {
+    lists.addList(newList);
+    return; 
+  }
+  lists = updateTodoList(lists, newList.title, newList.items);
 };
 
 const readBody = function(req, res, next) {
@@ -88,14 +93,14 @@ const serveTodos = function(lists, req, res) {
 };
 
 const extractTitle = function(args) {
-  return args.split('?')[1];
+  return args.split("?")[1];
 };
 
 const serveAddItemPage = function(cache, req, res) {
   const title = extractTitle(req.url);
   const addItemPage = cache["./addItem.html"]
-  .toString()
-  .replace(/#title#/g, title);
+    .toString()
+    .replace(/#title#/g, title);
   send(res, addItemPage, 200);
 };
 
@@ -103,7 +108,7 @@ const serveAddTodoForm = function(cache, req, res) {
   send(res, cache["./todoForm.html"], 200);
 };
 
-const updateTodoList = function(lists, title, item) {
+const updateTodoList = function(lists, title, [item]) {
   const listToAdd = lists.lists.filter(list => list.title == title)[0];
   listToAdd.addItem(item);
   lists.updateList(listToAdd);
@@ -115,24 +120,28 @@ const addItem = function(fs, lists, cache, req, res) {
   const decodedItem = decodeData(postData.item);
   const item = new Item(decodedItem);
   const title = extractTitle(req.url);
-  const updatedLists = updateTodoList(lists, title, item);
+  const updatedLists = updateTodoList(lists, title, [item]);
   fs.writeFile("./todos.json", JSON.stringify([updatedLists]), () => {});
   res.statusCode = 302;
   res.setHeader("location", "/todoList");
   res.end();
 };
 
-const serveList = function(cache,req,res){
+const serveList = function(cache, req, res) {
   const title = extractTitle(req.url);
-  const data = cache['./list.html'].toString().replace(/#title#/g,title);
+  const data = cache["./list.html"].toString().replace(/#title#/g, title);
   send(res, data, 200);
-}
+};
 
-const serveItems = function(lists, req, res){
+const serveItems = function(lists, req, res) {
   const title = extractTitle(req.url);
   const requiredList = lists.lists.filter(list => list.title == title);
   send(res, JSON.stringify(requiredList), 200);
-}
+};
+
+const deleteItem = function(lists, req, res) {
+  const item = readArgs(extractTitle(req.url));
+};
 
 module.exports = {
   readBody,
@@ -155,5 +164,6 @@ module.exports = {
   extractTitle,
   updateTodoList,
   serveList,
-  serveItems
+  serveItems,
+  deleteItem
 };

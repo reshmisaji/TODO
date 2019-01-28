@@ -5,9 +5,18 @@ const displayData = function(res) {
 };
 
 const addListItem = function(items) {
-  return items.map(({ description, status }) => {
-    return `<li>${description} - ${status}</li>`;
-  }).join("");
+  return items
+    .map(({ description, status }) => {
+      return `<li>${description} - ${status}<input type='submit' value='delete' onclick='deleteItem("${description}")'/></li> `;
+    })
+    .join("");
+};
+
+const deleteItem = function(description) {
+  const title = getTitle();
+  fetch(`/deleteItem?title=${title}&description=${description}`).then(res =>
+    res.json()
+  );
 };
 
 const createHTML = function(data) {
@@ -19,7 +28,6 @@ const createHTML = function(data) {
     })
     .join("");
 };
-
 
 const initialize = function() {
   const title = getTitle();

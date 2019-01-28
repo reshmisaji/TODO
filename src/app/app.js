@@ -13,7 +13,8 @@ const {
   addItem,
   logRequest,
   serveList,
-  serveItems
+  serveItems,
+  deleteItem
 } = require("./handlers");
 
 const { Express } = require("./express");
@@ -72,7 +73,8 @@ app.post("/todoList", addTodo.bind(null, fs, lists, cache));
 app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
 app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
 app.get("/todos", serveTodos.bind(null, lists));
-app.get(/\/todoItems?/,serveItems.bind(null, lists))
+app.get(/\/todoItems?/,serveItems.bind(null, lists));
+app.get(/\/deleteItem?/, deleteItem.bind(null,lists));
 app.get("/todoList", renderTodoList.bind(null, cache));
 app.get("/add?", serveAddTodoForm.bind(null, cache));
 app.get(/\/list?/, serveList.bind(null, cache));
