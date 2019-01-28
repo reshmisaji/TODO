@@ -11,7 +11,9 @@ const {
   serveAddTodoForm,
   serveFile,
   addItem,
-  logRequest
+  logRequest,
+  serveList,
+  serveItems
 } = require("./handlers");
 
 const { Express } = require("./express");
@@ -70,8 +72,10 @@ app.post("/todoList", addTodo.bind(null, fs, lists, cache));
 app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
 app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
 app.get("/todos", serveTodos.bind(null, lists));
+app.get(/\/todoItems?/,serveItems.bind(null, lists))
 app.get("/todoList", renderTodoList.bind(null, cache));
 app.get("/add?", serveAddTodoForm.bind(null, cache));
+app.get(/\/list?/, serveList.bind(null, cache));
 app.use(serveFile.bind(null, cache));
 
 const requestHandler = app.handleRequest.bind(app);

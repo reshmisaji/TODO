@@ -1,11 +1,7 @@
-const addTodo = function() {
-  fetch("/add")
-    .then(res => res.text())
-    .then(html => (document.documentElement.innerHTML = html));
-};
+const getTitle = () => document.getElementById("title").innerText;
 
 const displayData = function(res) {
-  document.getElementById("mainContainer").innerHTML = res;
+  document.getElementById("itemContainer").innerHTML = res;
 };
 
 const addListItem = function(items) {
@@ -15,21 +11,21 @@ const addListItem = function(items) {
 };
 
 const createHTML = function(data) {
+  let contents = "";
   return data
-    .map(({ title, items }) => {
-      let contents = `<a href="/list?${title}" >${title}</a></br>`;
-      // contents += addListItem(items);
+    .map(({ items }) => {
+      contents += addListItem(items);
       return contents;
     })
     .join("");
 };
 
+
 const initialize = function() {
-  fetch("/todos")
+  const title = getTitle();
+  fetch(`/todoItems?${title}`)
     .then(res => res.json())
-    .then(result => {
-      return createHTML(result);
-    })
+    .then(result => createHTML(result))
     .then(html => displayData(html));
 };
 

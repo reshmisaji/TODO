@@ -22,4 +22,7 @@
 * DONE add tests for handler
 * DONE have another entity to hold all the lists
 * DONE add tests for app
-* TODO handle post request to /addItem
+* DONE handle post request to /addItem
+* DONE remove the details from the home page
+* DONE create hyperlinks to to go to that specific list
+* TODO handle edit delete and adding there for each item

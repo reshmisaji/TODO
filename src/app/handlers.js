@@ -11,9 +11,9 @@ const logRequest = (req, res, next) => {
   next();
 };
 
-const decodeData = function(data){
-  return unescape(data.replace(/\+/g,' '));
-}
+const decodeData = function(data) {
+  return unescape(data.replace(/\+/g, " "));
+};
 
 const send = function(res, data, statusCode = 200) {
   res.statusCode = statusCode;
@@ -58,8 +58,8 @@ const initialiseNewList = function(todo) {
 };
 
 const append = function(todoList, lists) {
-  todoList = decodeData(todoList);
-  const list = initialiseNewList(todoList);
+  const listDetails = decodeData(JSON.stringify(todoList));
+  const list = initialiseNewList(JSON.parse(listDetails));
   lists.addList(list);
 };
 
@@ -88,14 +88,14 @@ const serveTodos = function(lists, req, res) {
 };
 
 const extractTitle = function(args) {
-  return args.split("?")[1];
+  return args.split('?')[1];
 };
 
 const serveAddItemPage = function(cache, req, res) {
   const title = extractTitle(req.url);
   const addItemPage = cache["./addItem.html"]
-    .toString()
-    .replace(/#title#/g, title);
+  .toString()
+  .replace(/#title#/g, title);
   send(res, addItemPage, 200);
 };
 
@@ -118,9 +118,21 @@ const addItem = function(fs, lists, cache, req, res) {
   const updatedLists = updateTodoList(lists, title, item);
   fs.writeFile("./todos.json", JSON.stringify([updatedLists]), () => {});
   res.statusCode = 302;
-  res.setHeader('location', '/todoList');
+  res.setHeader("location", "/todoList");
   res.end();
 };
+
+const serveList = function(cache,req,res){
+  const title = extractTitle(req.url);
+  const data = cache['./list.html'].toString().replace(/#title#/g,title);
+  send(res, data, 200);
+}
+
+const serveItems = function(lists, req, res){
+  const title = extractTitle(req.url);
+  const requiredList = lists.lists.filter(list => list.title == title);
+  send(res, JSON.stringify(requiredList), 200);
+}
 
 module.exports = {
   readBody,
@@ -141,5 +153,7 @@ module.exports = {
   addItem,
   logRequest,
   extractTitle,
-  updateTodoList
+  updateTodoList,
+  serveList,
+  serveItems
 };
