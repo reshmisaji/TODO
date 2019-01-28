@@ -14,6 +14,7 @@ class Item {
   edit(description) {
     this.description = description;
   }
+  
 }
 
 module.exports = Item;

@@ -3,11 +3,22 @@
   <head>
     <title>list</title>
     <script src="items.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
   <body>
-    <header>
-      <h2 id="title" >#title#</h2></header>
-    <form method="POST" action="/serveAddItemPage?#title#"><input type="submit" value="ADD" /></form>
-    <main id="itemContainer"></main>
+    <header class="header" id="title">
+      <a href="/todoList"><i class="fa fa-home" aria-hidden="true"></i></a>#title#
+    </header>
+    <nav class="navigation">
+      <form method="POST" action="/serveAddItemPage?#title#">
+        <input type="submit" class="add" value=" + " />
+      </form>
+    </nav>
+
+    <main id="itemContainer" class="contents"></main>
   </body>
 </html>

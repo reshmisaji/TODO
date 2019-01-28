@@ -57,9 +57,13 @@ const initialiseNewList = function(todo) {
   return list;
 };
 
+const getDecodeData = function(list){
+  const listDetails = decodeData(JSON.stringify(list));
+  return initialiseNewList(JSON.parse(listDetails));
+}
+
 const append = function(todoList, lists) {
-  const listDetails = decodeData(JSON.stringify(todoList));
-  const newList = initialiseNewList(JSON.parse(listDetails));
+  const newList = getDecodeData(todoList);
   const listToAdd = lists.lists.filter(list => list.title == newList.title)[0];
   if (listToAdd == undefined) {
     lists.addList(newList);
@@ -123,7 +127,7 @@ const addItem = function(fs, lists, cache, req, res) {
   const updatedLists = updateTodoList(lists, title, [item]);
   fs.writeFile("./todos.json", JSON.stringify([updatedLists]), () => {});
   res.statusCode = 302;
-  res.setHeader("location", "/todoList");
+  res.setHeader("location", `/list?${title}`);
   res.end();
 };
 
@@ -139,8 +143,15 @@ const serveItems = function(lists, req, res) {
   send(res, JSON.stringify(requiredList), 200);
 };
 
-const deleteItem = function(lists, req, res) {
-  const item = readArgs(extractTitle(req.url));
+const deleteGivenItem = function(lists, fs, req, res) {
+  const itemDetails = readArgs(extractTitle(req.url));
+  const decodedItem = decodeData(JSON.stringify(itemDetails));
+  const decodedItemDetails = JSON.parse(decodedItem);
+  const listToDelete = lists.lists.filter(list => list.title == decodedItemDetails.title)[0];
+  const itemToDelete = new Item(decodedItemDetails.description);
+  listToDelete.deleteItem(itemToDelete);
+  fs.writeFile('./todos.json',JSON.stringify([lists]),()=>{});
+  send(res, JSON.stringify([listToDelete]), 200);
 };
 
 module.exports = {
@@ -165,5 +176,5 @@ module.exports = {
   updateTodoList,
   serveList,
   serveItems,
-  deleteItem
+  deleteGivenItem
 };

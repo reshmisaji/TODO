@@ -3,12 +3,21 @@
   <head>
     <title>Update the list</title>
     <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
   <body>
-    <header><h1>Update TODO List</h1></header>
-    <main>
-      #title#
-      <form action="/addItem?#title#" method="POST">
+    <header class="header"><a href="/todoList"><i class="fa fa-home" aria-hidden="true"></i></a>Update TODO List</header>
+    <nav class="navigation update">
+          #title#
+        </form>
+      </nav>
+    <main id="itemContainer" class="formContainer">
+      <br />
+      <form action="/addItem?#title#" method="POST" class="addTodo">
         <input type="text" id="item" name="item" />
         <input type="submit" value="Add" />
       </form>

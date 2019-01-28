@@ -8,17 +8,17 @@ const displayData = function(res) {
   document.getElementById("mainContainer").innerHTML = res;
 };
 
-const addListItem = function(items) {
-  return items.map(({ description, status }) => {
-    return `<li>${description} - ${status}</li>`;
-  }).join("");
-};
+// const addListItem = function(items) {
+//   return items.map(({ description, status }) => {
+//     return `<li class="lists">${description} - ${status}</li>`;
+//   }).join("");
+// };
 
 const createHTML = function(data) {
+  console.log(data);
   return data
     .map(({ title, items }) => {
-      let contents = `<a href="/list?${title}" >${title}</a></br>`;
-      // contents += addListItem(items);
+      let contents = `<br /><a href="/list?${title}" ><div class="lists">${title}</div></a>`;
       return contents;
     })
     .join("");

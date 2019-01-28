@@ -7,19 +7,21 @@ const displayData = function(res) {
 const addListItem = function(items) {
   return items
     .map(({ description, status }) => {
-      return `<li>${description} - ${status}<input type='submit' value='delete' onclick='deleteItem("${description}")'/></li> `;
+      return `<br /><div class="lists">${description} <input type="submit" class="todo"  value="${status}" /><input type='submit' value='delete' class="delete" onclick='deleteItem("${description}")'/></div> `;
     })
     .join("");
 };
 
 const deleteItem = function(description) {
   const title = getTitle();
-  fetch(`/deleteItem?title=${title}&description=${description}`).then(res =>
-    res.json()
-  );
+  fetch(`/deleteItem?title=${title}&description=${description}`)
+  .then(res =>res.json())
+  .then(result => createHTML(result))
+  .then(html => displayData(html));
 };
 
 const createHTML = function(data) {
+  console.log(data);
   let contents = "";
   return data
     .map(({ items }) => {
