@@ -15,6 +15,12 @@ class List {
   editTitle(title) {
     this.title = title;
   }
+
+  updateItem(newItem){
+    const itemToUpdate =  this.items.filter(item => item.description == newItem.description);
+    const index = this.items.indexOf(itemToUpdate[0]);
+    this.items[index] = newItem
+  }
 }
 
 const isNotEqual = function(first, second) {

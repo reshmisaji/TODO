@@ -147,33 +147,44 @@ const getElementDetails = function(url, lists) {
   const elementDetails = readArgs(extractTitle(url));
   const decodedelement = decodeData(JSON.stringify(elementDetails));
   const decodedelementDetails = JSON.parse(decodedelement);
-  const elementToDelete = lists.lists.filter(
+  const elementInfo = lists.lists.filter(
     list => list.title == decodedelementDetails.title
   )[0];
-  return { decodedelementDetails, elementToDelete };
+  return { decodedelementDetails, elementInfo };
 };
 
 const deleteGivenItem = function(lists, fs, req, res) {
-  const { decodedelementDetails, elementToDelete } = getElementDetails(
+  const { decodedelementDetails, elementInfo } = getElementDetails(
     req.url,
     lists
   );
   const itemToDelete = new Item(decodedelementDetails.description);
-  elementToDelete.deleteItem(itemToDelete);
+  elementInfo.deleteItem(itemToDelete);
   fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
-  send(res, JSON.stringify([elementToDelete]), 200);
+  send(res, JSON.stringify([elementInfo]), 200);
 };
 
 const deleteGivenList = function(lists, fs, req, res) {
-  const { elementToDelete } = getElementDetails(req.url, lists);
+  const { elementInfo } = getElementDetails(req.url, lists);
   const elementToDeleteDetails = new List(
-    elementToDelete.title,
-    elementToDelete.items
+    elementInfo.title,
+    elementInfo.items
   );
   lists.deleteList(elementToDeleteDetails);
   fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
   send(res, JSON.stringify(lists.lists), 200);
 };
+
+const toggle = function(lists,fs,req,res){
+  const {decodedelementDetails,elementInfo} = getElementDetails(req.url,lists);
+  const {description, status} = decodedelementDetails
+  const itemToEdit = new Item(description, status);
+  itemToEdit.toggleStatus();
+  elementInfo.updateItem(itemToEdit);
+  lists.updateList(elementInfo);
+  fs.writeFile('./todos.json', JSON.stringify([lists]), () => {});
+  send( res, JSON.stringify([elementInfo]), 200);
+}
 
 module.exports = {
   readBody,
@@ -198,5 +209,6 @@ module.exports = {
   serveList,
   serveItems,
   deleteGivenItem,
-  deleteGivenList
+  deleteGivenList,
+  toggle
 };

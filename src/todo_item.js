@@ -1,8 +1,8 @@
 class Item {
-  constructor(description) {
+  constructor(description,status='TODO') {
     this.description = description;
     this.statuses = ["TODO", "Done"];
-    this.status = "TODO";
+    this.status = status;
   }
 
   toggleStatus() {
