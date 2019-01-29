@@ -16,7 +16,9 @@ const {
   serveItems,
   deleteGivenItem,
   deleteGivenList,
-  toggle
+  toggle,
+  serveEditPage,
+  editItem
 } = require("./handlers");
 
 const { Express } = require("./express");
@@ -35,7 +37,9 @@ const readTodoFile = function(fs) {
 const initialiseListItems = function(content) {
   content.forEach(user =>
     user.lists.forEach(list => {
-      list.items = list.items.map(item => new Item(item.description, item.status));
+      list.items = list.items.map(
+        item => new Item(item.description, item.status)
+      );
     })
   );
   return content;
@@ -74,11 +78,13 @@ app.use(logRequest);
 app.post("/todoList", addTodo.bind(null, fs, lists, cache));
 app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
 app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
+app.post(/\/serveEditPage/, serveEditPage.bind(null, cache));
+app.post('/editItem', editItem.bind(null, lists,fs));
 app.get("/todos", serveTodos.bind(null, lists));
 app.get(/\/todoItems?/, serveItems.bind(null, lists));
-app.get(/\/deleteItem?/, deleteGivenItem.bind(null, lists, fs));
-app.get(/\/toggleStatus?/, toggle.bind(null, lists, fs));
-app.get(/\/deleteList?/, deleteGivenList.bind(null, lists, fs));
+app.post(/\/deleteItem/, deleteGivenItem.bind(null, lists, fs));
+app.post(/\/toggleStatus/, toggle.bind(null, lists, fs));
+app.post(/\/deleteList/, deleteGivenList.bind(null, lists, fs));
 app.get("/todoList", renderTodoList.bind(null, cache));
 app.get("/add?", serveAddTodoForm.bind(null, cache));
 app.get(/\/list?/, serveList.bind(null, cache));

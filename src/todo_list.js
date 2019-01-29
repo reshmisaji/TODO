@@ -16,10 +16,10 @@ class List {
     this.title = title;
   }
 
-  updateItem(newItem){
-    const itemToUpdate =  this.items.filter(item => item.description == newItem.description);
+  updateItem(newItem,description){
+    const itemToUpdate =  this.items.filter(item => item.description == description);
     const index = this.items.indexOf(itemToUpdate[0]);
-    this.items[index] = newItem
+    this.items[index] = newItem;
   }
 }
 

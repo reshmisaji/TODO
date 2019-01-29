@@ -9,7 +9,6 @@ const displayData = function(res) {
 };
 
 const createHTML = function(data) {
-  console.log(data);
   return data
     .map(({ title }) => {
       let contents = `<br /><div class="lists">${title}   <a href="/list?${title}" ><input type="submit" value="OPEN" class="todo" /></a>   <input type='submit' value='DELETE' class="delete" onclick='deleteList("${title}")'/></div>`;
@@ -19,7 +18,7 @@ const createHTML = function(data) {
 };
 
 const deleteList = function(title) {
-  fetch(`/deleteList?title=${title}`)
+  fetch(`/deleteList`,{method:'POST',body:JSON.stringify({title})})
     .then(res => res.json())
     .then(result => createHTML(result))
     .then(html => displayData(html));
