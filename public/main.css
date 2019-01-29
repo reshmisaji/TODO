@@ -1,7 +1,12 @@
 a{
   text-decoration: none;
   font-size: 25px;
-  color:black
+  color:black;
+  background-color: rgb(254, 249, 249);
+}
+
+label{
+  color:white;
 }
 
 .lists:hover{
@@ -46,14 +51,7 @@ height:60px;
   border: solid rgb(60, 57, 57);
   text-align: center;
   margin: 0 auto;
-}
-
-.items{
-  width:500px;
-  height:35px;
-  border: solid rgb(60, 57, 57);
-  text-align: center;
-  margin: 0 auto;
+  border-radius: 10px;
 }
 
 .update{
@@ -65,6 +63,25 @@ height:60px;
   width:500px;
   height:400px;
   margin:0 auto;
-  background-color: gray;
+  background-color: rgb(3, 3, 3);
   text-align: center;
+  border-radius: 10px;
+}
+
+.addTodo input{
+  width:200px;
+  height:30px;
+  border-radius: 10px;
+  margin-top: 80px;
+  text-align: center;
+}
+
+.addButton{
+  font-size: 20px;
+}
+
+.addButton:hover{
+  background-color: green;
+  color:white;
+  font-size: 20px;
 }

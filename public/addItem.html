@@ -13,13 +13,12 @@
     <header class="header"><a href="/todoList"><i class="fa fa-home" aria-hidden="true"></i></a>Update TODO List</header>
     <nav class="navigation update">
           #title#
-        </form>
       </nav>
     <main id="itemContainer" class="formContainer">
       <br />
       <form action="/addItem?#title#" method="POST" class="addTodo">
-        <input type="text" id="item" name="item" />
-        <input type="submit" value="Add" />
+        <input type="text" id="item" name="item" style="height:50px" placeholder="Enter new item into #title#"/><br />
+        <input type="submit" value="Add" class="addButton"/>
       </form>
     </main>
   </body>

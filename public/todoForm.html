@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title> Todo Form</title>
-  <script src="main.js"></script>
-  <link rel="stylesheet" type="text/css" href="main.css" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-  />
-</head>
-<body>
-  <header> <h2>Add TODOs</h2></header>
-  <form id="addComments" action="/todoList" method="POST" >
-  <label>Title : </label><input type="text" name="title" required placeholder="input the title of todo list"  /><br /><br />
-  <label>Description : </label><input type="text" name="item" required placeholder="enter your todo task" /><br /><br />
-<input type="submit" name="ADD" />
-</form>
-</body>
+  <head>
+    <title>Todo Form</title>
+    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <header class="header"><a href="/todoList" class="homeIcon"><i class="fa fa-home" aria-hidden="true"></i></a> Add TODOs</header>
+    <nav class="navigation"></nav>
+    <main id="itemContainer" class="formContainer">
+      <br />
+      <form id="addComments" action="/todoList" method="POST" class="addTodo">
+        <input
+          type="text"
+          id="item"
+          name="title"
+          style="height:50px"
+          required
+          placeholder="Enter the title of todo list"
+        /><br />
+        <input
+          type="text"
+          name="item"
+          required
+          placeholder="enter your todo task"
+        /><br />
+        <input type="submit" name="ADD" value="ADD" class="addButton" />
+      </form>
+    </main>
+  </body>
 </html>
