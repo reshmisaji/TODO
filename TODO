@@ -25,4 +25,6 @@
 * DONE handle post request to /addItem
 * DONE remove the details from the home page
 * DONE create hyperlinks to to go to that specific list
-* TODO handle edit delete and adding there for each item
+* TODO decode the list title
+* DONE handle delete and adding there for each item
+* TODO edit the item description as well as the title of the list

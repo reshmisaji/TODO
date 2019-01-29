@@ -2,11 +2,14 @@ a{
   text-decoration: none;
   font-size: 25px;
   color:black;
-  background-color: rgb(254, 249, 249);
 }
 
 label{
   color:white;
+}
+
+input{
+  border-radius: 10px;
 }
 
 .lists:hover{
@@ -37,7 +40,7 @@ height:60px;
 
 .todo:hover{
   color: rgb(238, 229, 229);
-  background-color: rgb(11, 130, 21)
+  background-color: green;
 }
 
 .delete:hover{
@@ -48,6 +51,7 @@ height:60px;
 .lists{
   width:500px;
   height:35px;
+  font-size: 20px;
   border: solid rgb(60, 57, 57);
   text-align: center;
   margin: 0 auto;

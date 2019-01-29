@@ -9,21 +9,19 @@ class List {
   }
 
   deleteItem(item) {
-    this.items = this.items.filter(isEqual.bind(null, item));
-    // items.map(item => {
-    //   const index = this.items.indexOf(item);
-    //   this.items.splice(index, 1);
-    // });
+    this.items = this.items.filter(isNotEqual.bind(null, item));
   }
 
-  editTitle(title){
+  editTitle(title) {
     this.title = title;
   }
 }
 
-const isEqual = function(first, second){
-  const comparisons = Object.keys(first).filter(key => first[key] == second[key]);
+const isNotEqual = function(first, second) {
+  const comparisons = Object.keys(first).filter(
+    key => first[key] == second[key]
+  );
   return comparisons.length != 2;
-}
+};
 
 module.exports = List;

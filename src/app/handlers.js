@@ -57,17 +57,17 @@ const initialiseNewList = function(todo) {
   return list;
 };
 
-const getDecodeData = function(list){
+const getDecodeData = function(list) {
   const listDetails = decodeData(JSON.stringify(list));
   return initialiseNewList(JSON.parse(listDetails));
-}
+};
 
 const append = function(todoList, lists) {
   const newList = getDecodeData(todoList);
   const listToAdd = lists.lists.filter(list => list.title == newList.title)[0];
   if (listToAdd == undefined) {
     lists.addList(newList);
-    return; 
+    return;
   }
   lists = updateTodoList(lists, newList.title, newList.items);
 };
@@ -143,15 +143,36 @@ const serveItems = function(lists, req, res) {
   send(res, JSON.stringify(requiredList), 200);
 };
 
+const getElementDetails = function(url, lists) {
+  const elementDetails = readArgs(extractTitle(url));
+  const decodedelement = decodeData(JSON.stringify(elementDetails));
+  const decodedelementDetails = JSON.parse(decodedelement);
+  const elementToDelete = lists.lists.filter(
+    list => list.title == decodedelementDetails.title
+  )[0];
+  return { decodedelementDetails, elementToDelete };
+};
+
 const deleteGivenItem = function(lists, fs, req, res) {
-  const itemDetails = readArgs(extractTitle(req.url));
-  const decodedItem = decodeData(JSON.stringify(itemDetails));
-  const decodedItemDetails = JSON.parse(decodedItem);
-  const listToDelete = lists.lists.filter(list => list.title == decodedItemDetails.title)[0];
-  const itemToDelete = new Item(decodedItemDetails.description);
-  listToDelete.deleteItem(itemToDelete);
-  fs.writeFile('./todos.json',JSON.stringify([lists]),()=>{});
-  send(res, JSON.stringify([listToDelete]), 200);
+  const { decodedelementDetails, elementToDelete } = getElementDetails(
+    req.url,
+    lists
+  );
+  const itemToDelete = new Item(decodedelementDetails.description);
+  elementToDelete.deleteItem(itemToDelete);
+  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
+  send(res, JSON.stringify([elementToDelete]), 200);
+};
+
+const deleteGivenList = function(lists, fs, req, res) {
+  const { elementToDelete } = getElementDetails(req.url, lists);
+  const elementToDeleteDetails = new List(
+    elementToDelete.title,
+    elementToDelete.items
+  );
+  lists.deleteList(elementToDeleteDetails);
+  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
+  send(res, JSON.stringify(lists.lists), 200);
 };
 
 module.exports = {
@@ -176,5 +197,6 @@ module.exports = {
   updateTodoList,
   serveList,
   serveItems,
-  deleteGivenItem
+  deleteGivenItem,
+  deleteGivenList
 };

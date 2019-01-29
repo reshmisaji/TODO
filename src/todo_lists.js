@@ -9,10 +9,7 @@ class Lists {
   }
 
   deleteList(lists) {
-    lists.map(list => {
-      const index = this.lists.indexOf(list);
-      this.lists.splice(index, 1);
-    });
+    this.lists = this.lists.filter(isNotEqual.bind(null, lists));
   }
 
   updateList(newList) {
@@ -21,5 +18,9 @@ class Lists {
     this.lists[index] = newList;
   }
 }
+
+const isNotEqual = function(first, second) {
+  return first.title != second.title;
+};
 
 module.exports = Lists;
