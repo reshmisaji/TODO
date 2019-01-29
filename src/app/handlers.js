@@ -15,6 +15,12 @@ const decodeData = function(data) {
   return unescape(data.replace(/\+/g, " "));
 };
 
+const redirect = function(res, location, statusCode = 302) {
+  res.statusCode = statusCode;
+  res.setHeader("location", location);
+  res.end();
+};
+
 const send = function(res, data, statusCode = 200) {
   res.statusCode = statusCode;
   res.write(data);
@@ -126,9 +132,7 @@ const addItem = function(fs, lists, cache, req, res) {
   const title = extractTitle(req.url);
   const updatedLists = updateTodoList(lists, title, [item]);
   fs.writeFile("./todos.json", JSON.stringify([updatedLists]), () => {});
-  res.statusCode = 302;
-  res.setHeader("location", `/list?${title}`);
-  res.end();
+  redirect(res, `list?${title}`, 302);
 };
 
 const serveList = function(cache, req, res) {
@@ -180,7 +184,7 @@ const toggle = function(lists, fs, req, res) {
   );
   const itemToEdit = new Item(description, status);
   itemToEdit.toggleStatus();
-  elementInfo.updateItem(itemToEdit,description);
+  elementInfo.updateItem(itemToEdit, description);
   lists.updateList(elementInfo);
   fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
   send(res, JSON.stringify([elementInfo]), 200);
@@ -195,20 +199,47 @@ const serveEditPage = function(cache, req, res) {
   send(res, editItemPage, 200);
 };
 
-const editItem = function(lists,fs,req,res){
-  const itemDetails = JSON.stringify(readArgs(req.body));
-  const { title, description, status, elementInfo } = getElementDetails(itemDetails, lists);
-  const newDescription = decodeData(req.body);
-  const newDescriptionDetails = readArgs(newDescription);
-  const item = new Item(description, status);
+const getTodoDetails = function(data, lists) {
+  const itemDetails = JSON.stringify(readArgs(data));
+  const elementDetails = getElementDetails(itemDetails, lists);
+  return ({ title, description, status, elementInfo } = elementDetails);
+};
+
+const getItemDetails = function(data) {
+  const newDescription = decodeData(data);
+  return readArgs(newDescription);
+};
+
+const updateTodo = function(
+  lists,
+  item,
+  newDescriptionDetails,
+  elementInfo,
+  description
+) {
   item.edit(newDescriptionDetails.item);
-  elementInfo.updateItem(item,description);
+  elementInfo.updateItem(item, description);
   lists.updateList(elementInfo);
-  fs.writeFile('./todos.json',JSON.stringify([lists]),()=>{});
-  res.statusCode = 302;
-  res.setHeader('location',`list?${title}`);
-  res.end();
-}
+  return lists;
+};
+
+const editItem = function(lists, fs, {body}, res) { 
+  const { title, description, status, elementInfo } = getTodoDetails(
+    body,
+    lists
+  );
+  const newDescriptionDetails = getItemDetails(body);
+  const item = new Item(description, status);
+  lists = updateTodo(
+    lists,
+    item,
+    newDescriptionDetails,
+    elementInfo,
+    description
+  );
+  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
+  redirect(res, `list?${title}`, 302);
+};
 
 module.exports = {
   readBody,

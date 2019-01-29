@@ -27,7 +27,7 @@
 * DONE create hyperlinks to to go to that specific list
 * DONE decode the list title
 * DONE handle delete and adding there for each item
-* TODO edit the item description as well as the title of the list
+* DONE edit the item description as well as the title of the list
 * DONE delete a list
 * DONE toggle status
 * TODO change variable names like lists -> todos etc..
