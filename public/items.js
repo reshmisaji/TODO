@@ -1,7 +1,17 @@
 const getTitle = () => document.getElementById("title").innerText;
 
+const toggleStatus = function() {
+  const status = document.getElementsByName("status");
+  status.forEach(state => {
+    if (state.value == "Done") {
+      state.className = "done";
+    }
+  });
+};
+
 const displayData = function(res) {
   document.getElementById("itemContainer").innerHTML = res;
+  toggleStatus();
 };
 
 const addListItem = function(items) {
@@ -10,7 +20,7 @@ const addListItem = function(items) {
     .map(({ description, status }) => {
       return `<br />
       <div class="lists"> ${description}   
-        <input type="submit" class="todo"  value="${status}" onclick='toggle("${status}","${description}")'/>   
+        <input name="status" type="submit" class="todo"  value="${status}" onclick='toggle("${status}","${description}")'/>   
         <input type="submit" class="edit" value="EDIT" onclick='edit("${status}","${description}","${title}")' />
         <input type='submit' value='DELETE' class="delete" onclick='deleteItem("${description}","${status}")'/>
         </div> `;
@@ -18,36 +28,32 @@ const addListItem = function(items) {
     .join("");
 };
 
-        // <form method="POST" action="/serveEditPage?title=${title}&description=${description}&status=${status}">
-        // </form>   
-// const edit = function(description,status){
-//   const title = getTitle();
-//   fetch(`/edit?title=${title}&description=${description}&status=${status}`)
-//   .then(res=>res.json())
-// }
+const edit = function(status, description, title) {
+  fetch("/serveEditPage", {
+    method: "POST",
+    body: JSON.stringify({ title, description, status })
+  })
+    .then(res => res.text())
+    .then(html => (document.documentElement.innerHTML = html));
+};
 
-const edit = function(status, description, title){
-  fetch('/serveEditPage',{method:'POST',body:JSON.stringify({title,description,status})})
-  .then(res => res.text())
-  .then(html => document.documentElement.innerHTML = html)
-  // .then(html => {
-  //   window.location.href = '/';
-  //   document.documentElement.innerHTML = html
-  // });
-}
-
-const toggle = function(status,description){
+const toggle = function(status, description) {
   const title = getTitle();
-  fetch(`/toggleStatus`,{method:'POST',body:JSON.stringify({title, description, status})})
-  .then(res=>res.json())
-  .then(result=>createHTML(result))
-  .then(html=>displayData(html))
-
-}
+  fetch(`/toggleStatus`, {
+    method: "POST",
+    body: JSON.stringify({ title, description, status })
+  })
+    .then(res => res.json())
+    .then(result => createHTML(result))
+    .then(html => displayData(html));
+};
 
 const deleteItem = function(description, status) {
   const title = getTitle();
-  fetch(`/deleteItem`,{method:'POST',body:JSON.stringify({title, description, status})})
+  fetch(`/deleteItem`, {
+    method: "POST",
+    body: JSON.stringify({ title, description, status })
+  })
     .then(res => res.json())
     .then(result => createHTML(result))
     .then(html => displayData(html));
