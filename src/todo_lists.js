@@ -1,15 +1,25 @@
 class Lists {
-  constructor(userName, lists) {
+  constructor(userName, lists, currentId = 0) {
     this.userName = userName;
-    this.lists = lists;
+    this.currentId = currentId;
+    this.lists = this.addId(lists);
+  }
+
+  addId(lists){
+    lists.forEach(list => {
+      list.id = this.currentId;
+      this.currentId++;
+    });
+    return lists;
   }
 
   addList(list) {
-    this.lists.push(list);
+    const [listWithId] = this.addId([list]);
+    this.lists.push(listWithId);
   }
 
-  deleteList(lists) {
-    this.lists = this.lists.filter(isNotEqual.bind(null, lists));
+  deleteList(listToDelete) {
+    this.lists = this.lists.filter(list => list.id != listToDelete.id);
   }
 
   updateList(newList) {

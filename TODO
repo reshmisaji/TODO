@@ -31,3 +31,10 @@
 * DONE delete a list
 * DONE toggle status
 * TODO change variable names like lists -> todos etc..
+* TODO implement everything with id not the title
+* TODO think about serveTodos in handler.js
+* DONE serveAddTodoForm to serveAddTodoPage
+* DONE renderTodoList to renderTodos
+* DONE serveList to serveTodo
+* DONE deleteGivenList to deleteGivenTodo
+* TODO data in the url in serveAddItem

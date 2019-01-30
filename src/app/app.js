@@ -4,18 +4,18 @@ const Lists = require("../todo_lists");
 
 const {
   readBody,
-  renderTodoList,
+  renderTodos,
   addTodo,
   serveTodos,
   serveAddItemPage,
-  serveAddTodoForm,
+  serveAddTodoPage,
   serveFile,
   addItem,
   logRequest,
-  serveList,
+  serveTodo,
   serveItems,
   deleteGivenItem,
-  deleteGivenList,
+  deleteGivenTodo,
   toggle,
   serveEditPage,
   editItem,
@@ -79,18 +79,18 @@ filesToRead.forEach(addCache.bind(null, fs));
 app.use(readBody);
 app.use(logRequest);
 app.post("/todoList", addTodo.bind(null, fs, lists, cache));
-app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
 app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
+app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
 app.post(/\/serveEditPage/, serveEditPage.bind(null, cache));
 app.post("/editItem", editItem.bind(null, lists, fs));
 app.get("/todos", serveTodos.bind(null, lists));
 app.get(/\/todoItems?/, serveItems.bind(null, lists));
-app.post(/\/deleteItem/, deleteGivenItem.bind(null, lists, fs));
-app.post(/\/toggleStatus/, toggle.bind(null, lists, fs));
-app.post(/\/deleteList/, deleteGivenList.bind(null, lists, fs));
-app.get("/todoList", renderTodoList.bind(null, cache));
-app.get("/add?", serveAddTodoForm.bind(null, cache));
-app.get(/\/list?/, serveList.bind(null, cache));
+app.post("/deleteItem", deleteGivenItem.bind(null, lists, fs));
+app.post("/toggleStatus", toggle.bind(null, lists, fs));
+app.post("/deleteList", deleteGivenTodo.bind(null, lists, fs));
+app.get("/todoList", renderTodos.bind(null, cache));
+app.get("/add?", serveAddTodoPage.bind(null, cache));
+app.get(/\/list?/, serveTodo.bind(null, cache));
 app.get("/index", serveHomePage.bind(null, cache));
 app.get("/signUpPage", serveSignUpPage.bind(null, cache));
 app.get("/login", login.bind(null, cache));

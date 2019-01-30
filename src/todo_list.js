@@ -1,15 +1,25 @@
 class List {
-  constructor(title, items) {
+  constructor(title, items, currentId=0) {
     this.title = title;
-    this.items = items;
+    this.currentId = currentId;
+    this.items = this.addId(items);
+  }
+
+  addId(items){
+    items.forEach(item => {
+      item.id = this.currentId;
+      this.currentId++;
+    });
+    return items;
   }
 
   addItem(item) {
-    this.items.push(item);
+    const [itemWithId] = this.addId([item]);
+    this.items.push(itemWithId);
   }
 
-  deleteItem(item) {
-    this.items = this.items.filter(isNotEqual.bind(null, item));
+  deleteItem(itemId) {
+    this.items = this.items.filter(item => item.id!= itemId);
   }
 
   editTitle(title) {

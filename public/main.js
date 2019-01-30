@@ -10,15 +10,22 @@ const displayData = function(res) {
 
 const createHTML = function(data) {
   return data
-    .map(({ title }) => {
-      let contents = `<br /><div class="lists">${title}   <a href="/list?${title}" ><input type="submit" value="OPEN" class="todo" /></a>   <input type='submit' value='DELETE' class="delete" onclick='deleteList("${title}")'/></div>`;
+    .map(({ title , id}) => {
+      let contents = `
+      <br />
+      <div class="lists">${title}   
+        <a href="/list?title=${title}&id=${id}" >
+          <input type="submit" value="OPEN" class="todo" />
+        </a>   
+        <input type='submit' value='DELETE' class="delete" onclick='deleteList("${id}")'/>
+      </div>`;
       return contents;
     })
     .join("");
 };
 
-const deleteList = function(title) {
-  fetch(`/deleteList`,{method:'POST',body:JSON.stringify({title})})
+const deleteList = function(todoId) {
+  fetch(`/deleteList`,{method:'POST',body:JSON.stringify({todoId})})
     .then(res => res.json())
     .then(result => createHTML(result))
     .then(html => displayData(html));

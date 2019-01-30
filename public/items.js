@@ -14,45 +14,44 @@ const displayData = function(res) {
   toggleStatus();
 };
 
-const addListItem = function(items) {
+const addListItem = function(items, todoId) {
   const title = getTitle();
   return items
-    .map(({ description, status }) => {
+    .map(({ description, status, id }) => {
       return `<br />
       <div class="lists"> ${description}   
-        <input name="status" type="submit" class="todo"  value="${status}" onclick='toggle("${status}","${description}")'/>   
-        <input type="submit" class="edit" value="EDIT" onclick='edit("${status}","${description}","${title}")' />
-        <input type='submit' value='DELETE' class="delete" onclick='deleteItem("${description}","${status}")'/>
+        <input name="status" type="submit" class="todo"  value="${status}" onclick='toggle(${id}, ${todoId})'/>   
+        <input type="submit" class="edit" value="EDIT" onclick='edit(${id},${todoId},"${title}","${description}")' />
+        <input type='submit' value='DELETE' class="delete" onclick='deleteItem(${id},${todoId})'/>
         </div> `;
     })
     .join("");
 };
 
-const edit = function(status, description, title) {
+const edit = function(id, todoId, title, description) {
   fetch("/serveEditPage", {
     method: "POST",
-    body: JSON.stringify({ title, description, status })
+    body: JSON.stringify({ id, todoId, title, description})
   })
     .then(res => res.text())
     .then(html => (document.documentElement.innerHTML = html));
 };
 
-const toggle = function(status, description) {
-  const title = getTitle();
+const toggle = function(id, todoId) {
   fetch(`/toggleStatus`, {
     method: "POST",
-    body: JSON.stringify({ title, description, status })
+    body: JSON.stringify({ id , todoId })
   })
     .then(res => res.json())
     .then(result => createHTML(result))
     .then(html => displayData(html));
 };
 
-const deleteItem = function(description, status) {
-  const title = getTitle();
+const deleteItem = function(id, todoId) {
+  // const title = getTitle();
   fetch(`/deleteItem`, {
     method: "POST",
-    body: JSON.stringify({ title, description, status })
+    body: JSON.stringify({ id, todoId })
   })
     .then(res => res.json())
     .then(result => createHTML(result))
@@ -62,16 +61,16 @@ const deleteItem = function(description, status) {
 const createHTML = function(data) {
   let contents = "";
   return data
-    .map(({ items }) => {
-      contents += addListItem(items);
+    .map(({ items,id}) => {
+      contents += addListItem(items, id);
       return contents;
     })
     .join("");
 };
 
 const initialize = function() {
-  const title = getTitle();
-  fetch(`/todoItems?${title}`)
+  const id = document.getElementById('id').value;
+  fetch(`/todoItems?${id}`)
     .then(res => res.json())
     .then(result => createHTML(result))
     .then(html => displayData(html));

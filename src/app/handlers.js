@@ -57,25 +57,20 @@ const readArgs = text => {
   return args;
 };
 
-const initialiseTodo = function(todo) {
-  const todoItem = new Item(todo.todoItem);
-  const todoList = new List(todo.title, [todoItem]);
-  return todoList;
+const initialiseTodo = function(todoInfo) {
+  const todoItem = new Item(todoInfo.item);
+  const todo = new List(todoInfo.title, [todoItem]);
+  return todo;
 };
 
 const getDecodeData = function(todo) {
-  const todoDetails = decodeData(JSON.stringify(todo));
-  return initialiseTodo(JSON.parse(todoDetails));
+  const todoInfo = decodeData(JSON.stringify(todo));
+  return initialiseTodo(JSON.parse(todoInfo));
 };
 
-const append = function(todoList, lists) {
-  const newList = getDecodeData(todoList);
-  const listToAdd = lists.lists.filter(list => list.title == newList.title)[0];
-  if (listToAdd == undefined) {
-    lists.addList(newList);
-    return;
-  }
-  lists = updateTodoList(lists, newList.title, newList.items);
+const append = function(todo, todos) {
+  const decodedTodo = getDecodeData(todo);
+  todos.addList(decodedTodo);
 };
 
 const readBody = function(req, res, next) {
@@ -87,7 +82,7 @@ const readBody = function(req, res, next) {
   });
 };
 
-const renderTodoList = function(cache, req, res) {
+const renderTodos = function(cache, req, res) {
   send(res, cache["./todolist.html"], 200);
 };
 
@@ -95,11 +90,11 @@ const addTodo = function(fs, todos, cache, req, res) {
   const todoDetails = readArgs(req.body);
   append(todoDetails, todos);
   fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
-  renderTodoList(cache, req, res);
+  renderTodos(cache, req, res);
 };
 
-const serveTodos = function(lists, req, res) {
-  send(res, JSON.stringify(lists.lists), 200);
+const serveTodos = function(todos, req, res) {
+  send(res, JSON.stringify(todos.lists), 200);
 };
 
 const extractTitle = function(args) {
@@ -107,138 +102,102 @@ const extractTitle = function(args) {
 };
 
 const serveAddItemPage = function(cache, req, res) {
-  const title = extractTitle(req.url);
+  const {id} = readArgs(req.body);
+  const title = decodeData(extractTitle(req.url));
   const addItemPage = cache["./addItem.html"]
     .toString()
-    .replace(/#title#/g, title);
+    .replace(/#title#/g, title)
+    .replace(/#id#/g,id);
   send(res, addItemPage, 200);
 };
 
-const serveAddTodoForm = function(cache, req, res) {
+const serveAddTodoPage = function(cache, req, res) {
   send(res, cache["./todoForm.html"], 200);
 };
 
-const updateTodoList = function(lists, title, [item]) {
-  const listToAdd = lists.lists.filter(list => list.title == title)[0];
-  listToAdd.addItem(item);
-  lists.updateList(listToAdd);
-  return lists;
+const updateTodoList = function(todos, title, [item]) {
+  const todoToAdd = todos.lists.filter(todo => todo.title == title)[0];
+  todoToAdd.addItem(item);
+  todos.updateList(todoToAdd);
+  return todos;
 };
 
-const addItem = function(fs, lists, cache, req, res) {
-  const postData = readArgs(req.body);
-  const decodedItem = decodeData(postData.item);
-  const item = new Item(decodedItem);
-  const title = extractTitle(req.url);
-  const updatedLists = updateTodoList(lists, title, [item]);
-  fs.writeFile("./todos.json", JSON.stringify([updatedLists]), () => {});
-  redirect(res, `list?${title}`, 302);
+const addItem = function(fs, todos, cache, req, res) {
+  const itemToAdd = readArgs(decodeData(req.body));
+  const { elementInfo } = getElementDetails(JSON.stringify(itemToAdd),todos);
+  const item = new Item(itemToAdd.item);
+  elementInfo.addItem(item);
+  fs.writeFile('./todos.json',JSON.stringify([todos]), ()=>{});
+  const urlToRedirect = `list?title=${elementInfo.title}&id=${itemToAdd.todoId}`;
+  redirect(res, urlToRedirect, 302);
 };
 
-const serveList = function(cache, req, res) {
-  const title = extractTitle(req.url);
-  const data = cache["./list.html"].toString().replace(/#title#/g, title);
-  send(res, data, 200);
+const serveTodo = function(cache, req, res) {
+  let { title, id } = readArgs(extractTitle(req.url));
+  title = decodeData(title);
+  const todoPage = cache["./list.html"].toString().replace(/#title#/g, title).replace(/#id#/g,id);
+  send(res, todoPage, 200);
 };
 
-const serveItems = function(lists, req, res) {
-  const title = extractTitle(req.url);
-  const requiredList = lists.lists.filter(list => list.title == title);
+const serveItems = function(todos, req, res) {
+  const id = extractTitle(req.url);
+  const requiredList = todos.lists.filter(todo => todo.id == id);
   send(res, JSON.stringify(requiredList), 200);
 };
 
-const getElementDetails = function(data, lists) {
-  const elementDetails = JSON.parse(data);
-  const decodedelement = decodeData(JSON.stringify(elementDetails));
-  const decodedelementDetails = JSON.parse(decodedelement);
-  const elementInfo = lists.lists.filter(
-    list => list.title == decodedelementDetails.title
-  )[0];
-  const { title, description, status } = decodedelementDetails;
-  return { title, description, status, elementInfo };
+const getElementDetails = function(data, todos) {
+  const {id, todoId} = JSON.parse(data);
+  const elementInfo = todos.lists.filter(list => list.id == todoId)[0];
+  return { id, elementInfo };
 };
 
-const deleteGivenItem = function(lists, fs, req, res) {
-  const { description, status, elementInfo } = getElementDetails(
-    req.body,
-    lists
-  );
-  const itemToDelete = new Item(description, status);
-  elementInfo.deleteItem(itemToDelete);
-  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
-  send(res, JSON.stringify([elementInfo]), 200);
+const deleteGivenItem = function(todos, fs, req, res) {
+  const {id, elementInfo} = getElementDetails(req.body, todos);
+  elementInfo.deleteItem(id);
+  fs.writeFile('./todos.json', JSON.stringify([todos]),()=>{});
+  send(res, JSON.stringify([elementInfo]),200);
 };
 
-const deleteGivenList = function(lists, fs, req, res) {
-  const { elementInfo } = getElementDetails(req.body, lists);
-  const elementToDeleteDetails = new List(elementInfo.title, elementInfo.items);
-  lists.deleteList(elementToDeleteDetails);
-  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
-  send(res, JSON.stringify(lists.lists), 200);
+const deleteGivenTodo = function(todos, fs, req, res) {
+  const { elementInfo } = getElementDetails(req.body, todos);
+  const todoToDeleteDetails = new List(elementInfo.title, elementInfo.items);
+  todoToDeleteDetails.id = elementInfo.id;
+  todos.deleteList(todoToDeleteDetails);
+  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  send(res, JSON.stringify(todos.lists), 200);
 };
 
-const toggle = function(lists, fs, req, res) {
-  const { description, status, elementInfo } = getElementDetails(
-    req.body,
-    lists
-  );
-  const itemToEdit = new Item(description, status);
-  itemToEdit.toggleStatus();
-  elementInfo.updateItem(itemToEdit, description);
-  lists.updateList(elementInfo);
-  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
-  send(res, JSON.stringify([elementInfo]), 200);
+const toggle = function(todos, fs, req, res) {
+  const {id, elementInfo} = getElementDetails(req.body, todos);
+  elementInfo.items.forEach(item => {
+    if(item.id == id){
+      item.toggleStatus();
+    }
+  });
+  fs.writeFile('./todos.json',JSON.stringify([todos]),()=>{});
+  send(res, JSON.stringify([elementInfo]),200);
 };
 
 const serveEditPage = function(cache, req, res) {
-  const { title, description, status } = JSON.parse(req.body);
+  const {id, todoId, title, description} = JSON.parse(req.body);
   const editItemPage = cache["./editList.html"]
     .toString()
-    .replace(/#title#/g, title)
-    .replace(/#description#/g, description);
+    .replace(/#id#/g, id)
+    .replace(/#todoId#/g, todoId)
+    .replace(/#title#/g,title)
+    .replace(/#description#/g,description);
   send(res, editItemPage, 200);
 };
 
-const getTodoDetails = function(data, lists) {
-  const itemDetails = JSON.stringify(readArgs(data));
-  const elementDetails = getElementDetails(itemDetails, lists);
-  return ({ title, description, status, elementInfo } = elementDetails);
-};
-
-const getItemDetails = function(data) {
-  const newDescription = decodeData(data);
-  return readArgs(newDescription);
-};
-
-const updateTodo = function(
-  lists,
-  item,
-  newDescriptionDetails,
-  elementInfo,
-  description
-) {
-  item.edit(newDescriptionDetails.item);
-  elementInfo.updateItem(item, description);
-  lists.updateList(elementInfo);
-  return lists;
-};
-
-const editItem = function(lists, fs, { body }, res) {
-  const { title, description, status, elementInfo } = getTodoDetails(
-    body,
-    lists
-  );
-  const newDescriptionDetails = getItemDetails(body);
-  const item = new Item(description, status);
-  lists = updateTodo(
-    lists,
-    item,
-    newDescriptionDetails,
-    elementInfo,
-    description
-  );
-  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
-  redirect(res, `list?${title}`, 302);
+const editItem = function(todos, fs, { body }, res) {
+  const itemToUpdate = readArgs(decodeData(body));
+  const { id, elementInfo} = getElementDetails(JSON.stringify(itemToUpdate), todos);
+  elementInfo.items.forEach(item =>{
+    if(item.id == id) item.edit(itemToUpdate.item);
+  })
+  fs.writeFile('./todos.json', JSON.stringify([todos]), ()=>{});
+  const urlToRedirect = `list?title=${elementInfo.title}&id=${itemToUpdate.todoId}`;
+  redirect(res, urlToRedirect, 302);
 };
 
 const serveHomePage = function(cache, req, res) {
@@ -255,11 +214,11 @@ const login = function(arguments) {
 
 module.exports = {
   readBody,
-  renderTodoList,
+  renderTodos,
   addTodo,
   serveTodos,
   serveAddItemPage,
-  serveAddTodoForm,
+  serveAddTodoPage,
   serveFile,
   send,
   serveData,
@@ -273,10 +232,10 @@ module.exports = {
   logRequest,
   extractTitle,
   updateTodoList,
-  serveList,
+  serveTodo,
   serveItems,
   deleteGivenItem,
-  deleteGivenList,
+  deleteGivenTodo,
   toggle,
   serveEditPage,
   editItem,
