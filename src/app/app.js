@@ -36,7 +36,7 @@ const { Express } = require("./express");
 const app = new Express();
 const fs = require("fs");
 
-let lists;
+let todos;
 
 const readTodoFile = function(fs) {
   if (!fs.existsSync("./todos.json")) {
@@ -68,8 +68,8 @@ const initialiseTodoLists = function(content) {
 const readTodo = function(fs) {
   let content = readTodoFile(fs);
   content = initialiseListItems(content);
-  let todos = initialiseTodoLists(content);
-  lists = new Lists("Ankon", todos);
+  let todo = initialiseTodoLists(content);
+  todos = new Lists("Ankon", todo);
 };
 
 readTodo(fs);
@@ -86,18 +86,18 @@ filesToRead.forEach(addCache.bind(null, fs));
 
 app.use(readBody);
 app.use(logRequest);
-app.post("/todoList", addTodo.bind(null, fs, lists, cache));
-app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
+app.post("/todoList", addTodo.bind(null, fs, todos, cache));
+app.post(/\/addItem/, addItem.bind(null, fs, todos, cache));
 app.post(/\/serveAddItemPage/, renderAddItemPage.bind(null, cache));
 app.post(/\/serveEditPage/, renderEditPage.bind(null, cache));
-app.post("/editItem", editItem.bind(null, lists, fs));
-app.get("/todos", serveTodos.bind(null, lists));
-app.get(/\/todoItems?/, serveItems.bind(null, lists));
-app.post("/deleteItem", deleteItem.bind(null, lists, fs));
-app.post("/toggleStatus", toggle.bind(null, lists, fs));
-app.post("/deleteList", deleteTodo.bind(null, lists, fs));
+app.post("/editItem", editItem.bind(null, todos, fs));
+app.get("/todos", serveTodos.bind(null, todos));
+app.get(/\/todoItems?/, serveItems.bind(null, todos));
+app.post("/deleteItem", deleteItem.bind(null, todos, fs));
+app.post("/toggleStatus", toggle.bind(null, todos, fs));
+app.post("/deleteList", deleteTodo.bind(null, todos, fs));
 app.post('/renderEditTodoPage',renderEditTodoPage.bind(null, cache))
-app.post('/editTodo',editTodo.bind(null,lists,fs))
+app.post('/editTodo',editTodo.bind(null,todos,fs))
 app.get("/todoList", renderTodos.bind(null, cache));
 app.get("/add?", renderAddTodoPage.bind(null, cache));
 app.get(/\/list?/, renderTodo.bind(null, cache));
