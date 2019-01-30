@@ -92,6 +92,13 @@ const renderSignUpPage = function(cache, req, res) {
   send(res, cache["./signUp.html"], 200);
 };
 
+const addUser = function(fs, userCredentials, req, res){
+  const {userId, userName, password} = readArgs(decodeData(req.body));
+  userCredentials[userId]= {userName, password};
+  fs.writeFile('./userCredentials.json',JSON.stringify(userCredentials),()=>{})
+  redirect(res, '/todoList',302);
+}
+
 const login = function(arguments) {
   return;
 };
@@ -109,5 +116,6 @@ module.exports = {
   getElementDetails,
   renderHomePage,
   renderSignUpPage,
-  login
+  login,
+  addUser
 };

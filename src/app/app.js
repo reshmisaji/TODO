@@ -29,7 +29,8 @@ const {
   logRequest,
   renderHomePage,
   renderSignUpPage,
-  login
+  login,
+  addUser
 } = require("./handlers");
 
 const { Express } = require("./express");
@@ -37,6 +38,14 @@ const app = new Express();
 const fs = require("fs");
 
 let todos;
+let userCredentials;
+
+const readUserCredentialsFile = function(fs) {
+  if (!fs.existsSync("./userCredentials.json")) {
+    fs.writeFileSync("./userCredentials.json", "{}");
+  }
+  return JSON.parse(fs.readFileSync("./userCredentials.json"));
+};
 
 const readTodoFile = function(fs) {
   if (!fs.existsSync("./todos.json")) {
@@ -72,6 +81,7 @@ const readTodo = function(fs) {
   todos = new Lists("Ankon", todo);
 };
 
+userCredentials = readUserCredentialsFile(fs);
 readTodo(fs);
 
 const cache = {};
@@ -97,7 +107,8 @@ app.post("/deleteItem", deleteItem.bind(null, todos, fs));
 app.post("/toggleStatus", toggle.bind(null, todos, fs));
 app.post("/deleteList", deleteTodo.bind(null, todos, fs));
 app.post('/renderEditTodoPage',renderEditTodoPage.bind(null, cache))
-app.post('/editTodo',editTodo.bind(null,todos,fs))
+app.post('/editTodo',editTodo.bind(null,todos,fs));
+app.post('/userSignUp',addUser.bind(null, fs, userCredentials));
 app.get("/todoList", renderTodos.bind(null, cache));
 app.get("/add?", renderAddTodoPage.bind(null, cache));
 app.get(/\/list?/, renderTodo.bind(null, cache));

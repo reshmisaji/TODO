@@ -17,8 +17,9 @@
     <main id="itemContainer" class="formContainer">
       <br />
       <form action="/userSignUp" method="POST" class="addTodo">
-        <input type="text" name="userName" placeholder="Enter your username." autofocus/><br />
-        <input type="password" name="password" placeholder="Enter your password"/><br />
+        <input type="text" name="userName" placeholder="Enter your username." autofocus required/><br />
+        <input type="text" name="userId" placeholder="Enter your userId." required/><br />
+        <input type="password" name="password" placeholder="Enter your password" required/><br />
         <input type="submit" value="SIGNUP" class="addButton"/>
       </form>
     </main>
