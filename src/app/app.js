@@ -18,7 +18,10 @@ const {
   deleteGivenList,
   toggle,
   serveEditPage,
-  editItem
+  editItem,
+  serveHomePage,
+  serveSignUpPage,
+  login
 } = require("./handlers");
 
 const { Express } = require("./express");
@@ -79,7 +82,7 @@ app.post("/todoList", addTodo.bind(null, fs, lists, cache));
 app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
 app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
 app.post(/\/serveEditPage/, serveEditPage.bind(null, cache));
-app.post('/editItem', editItem.bind(null, lists,fs));
+app.post("/editItem", editItem.bind(null, lists, fs));
 app.get("/todos", serveTodos.bind(null, lists));
 app.get(/\/todoItems?/, serveItems.bind(null, lists));
 app.post(/\/deleteItem/, deleteGivenItem.bind(null, lists, fs));
@@ -88,6 +91,9 @@ app.post(/\/deleteList/, deleteGivenList.bind(null, lists, fs));
 app.get("/todoList", renderTodoList.bind(null, cache));
 app.get("/add?", serveAddTodoForm.bind(null, cache));
 app.get(/\/list?/, serveList.bind(null, cache));
+app.get("/index", serveHomePage.bind(null, cache));
+app.get("/signUpPage", serveSignUpPage.bind(null, cache));
+app.get("/login", login.bind(null, cache));
 app.use(serveFile.bind(null, cache));
 
 const requestHandler = app.handleRequest.bind(app);

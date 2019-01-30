@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Home Page</title>
+    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <header class="header">
+      <a href="/index"><i class="fa fa-home" aria-hidden="true"></i></a>CREATE
+      YOUR TODOs
+    </header>
+    <nav class="navigation">
+      <a href="/signUpPage"> <input type="submit" class="add" value=" + " /> </a>
+    </nav>
+    <main id="itemContainer" class="formContainer">
+      <br />
+      <form action="/login" method="POST" class="addTodo">
+        <input
+          type="text"
+          name="userName"
+          placeholder="Enter your username."
+          autofocus
+        /><br />
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter your password"
+        /><br />
+        <input type="submit" value="LOGIN" class="addButton" />
+      </form>
+    </main>
+  </body>
+</html>

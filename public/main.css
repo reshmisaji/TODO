@@ -6,6 +6,7 @@ a{
 
 label{
   color:white;
+  font-size: 16px;
 }
 
 input{
@@ -38,29 +39,34 @@ height:60px;
   border: solid black;
 }
 
-.todo:hover{
-  color: rgb(238, 229, 229);
-  background-color: green;
-}
-
 .edit:hover{
   color: rgb(238, 229, 229);
   background-color: rgb(0, 2, 128);
 }
 
+.edit{
+  font-size: 14px;
+}
+
 .done{
+  font-size: 14px;
   color: rgb(238, 229, 229);
   background-color: rgb(8, 143, 8);
 }
 
 .todo{
-  color: rgb(238, 229, 229);
-  background-color: rgb(206, 129, 14);
+  color: black;
+  font-size: 14px;
+  background-color: rgb(238, 143, 20);
 }
 
 .delete:hover{
   color: rgb(238, 229, 229);
   background-color: rgb(223, 26, 26)
+}
+
+.delete{
+  font-size: 14px;
 }
 
 .lists{

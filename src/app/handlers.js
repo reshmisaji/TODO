@@ -57,15 +57,15 @@ const readArgs = text => {
   return args;
 };
 
-const initialiseNewList = function(todo) {
-  const item = new Item(todo.item);
-  const list = new List(todo.title, [item]);
-  return list;
+const initialiseTodo = function(todo) {
+  const todoItem = new Item(todo.todoItem);
+  const todoList = new List(todo.title, [todoItem]);
+  return todoList;
 };
 
-const getDecodeData = function(list) {
-  const listDetails = decodeData(JSON.stringify(list));
-  return initialiseNewList(JSON.parse(listDetails));
+const getDecodeData = function(todo) {
+  const todoDetails = decodeData(JSON.stringify(todo));
+  return initialiseTodo(JSON.parse(todoDetails));
 };
 
 const append = function(todoList, lists) {
@@ -91,10 +91,10 @@ const renderTodoList = function(cache, req, res) {
   send(res, cache["./todolist.html"], 200);
 };
 
-const addTodo = function(fs, lists, cache, req, res) {
-  const todoList = readArgs(req.body);
-  append(todoList, lists);
-  fs.writeFile("./todos.json", JSON.stringify([lists]), () => {});
+const addTodo = function(fs, todos, cache, req, res) {
+  const todoDetails = readArgs(req.body);
+  append(todoDetails, todos);
+  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
   renderTodoList(cache, req, res);
 };
 
@@ -223,7 +223,7 @@ const updateTodo = function(
   return lists;
 };
 
-const editItem = function(lists, fs, {body}, res) { 
+const editItem = function(lists, fs, { body }, res) {
   const { title, description, status, elementInfo } = getTodoDetails(
     body,
     lists
@@ -241,6 +241,18 @@ const editItem = function(lists, fs, {body}, res) {
   redirect(res, `list?${title}`, 302);
 };
 
+const serveHomePage = function(cache, req, res) {
+  send(res, cache["./index.html"], 200);
+};
+
+const serveSignUpPage = function(cache, req, res) {
+  send(res, cache["./signUp.html"], 200);
+};
+
+const login = function(arguments) {
+  return;
+};
+
 module.exports = {
   readBody,
   renderTodoList,
@@ -255,7 +267,7 @@ module.exports = {
   getRequestedFilePath,
   splitKeyValue,
   readArgs,
-  initialiseNewList,
+  initialiseTodo,
   append,
   addItem,
   logRequest,
@@ -267,5 +279,8 @@ module.exports = {
   deleteGivenList,
   toggle,
   serveEditPage,
-  editItem
+  editItem,
+  serveHomePage,
+  serveSignUpPage,
+  login
 };
