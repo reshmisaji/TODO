@@ -17,12 +17,19 @@ const createHTML = function(data) {
         <a href="/list?title=${title}&id=${id}" >
           <input type="submit" value="OPEN" class="todo" />
         </a>   
+        <input type="submit" value="EDIT" class="edit" onclick='editTodo("${id}","${title}")'/>
         <input type='submit' value='DELETE' class="delete" onclick='deleteList("${id}")'/>
       </div>`;
       return contents;
     })
     .join("");
 };
+
+const editTodo = function(todoId, title){
+  fetch(`/renderEditTodoPage`,{method:'POST',body:JSON.stringify({todoId, title})})
+  .then(res => res.text())
+  .then(html => document.documentElement.innerHTML = html)
+}
 
 const deleteList = function(todoId) {
   fetch(`/deleteList`,{method:'POST',body:JSON.stringify({todoId})})

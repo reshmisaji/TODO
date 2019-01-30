@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Update the list</title>
+    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <header class="header"><a href="/todoList"><i class="fa fa-home" aria-hidden="true"></i></a></header>
+    <nav class="navigation update">
+          #title#
+      </nav>
+    <main id="itemContainer" class="formContainer">
+      <br />
+      <form action="/editTodo" method="POST" class="addTodo">
+        <input type="text" id="todo" name="title" style="height:50px" value="#title#"/><br />
+        <input type="hidden" name="todoId" value="#todoId#"/>
+        <input type="submit" value="UPDATE" class="addButton"/>
+      </form>
+    </main>
+  </body>
+</html>

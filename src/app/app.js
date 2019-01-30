@@ -3,24 +3,32 @@ const Item = require("../todo_item");
 const Lists = require("../todo_lists");
 
 const {
-  readBody,
   renderTodos,
   addTodo,
   serveTodos,
-  serveAddItemPage,
-  serveAddTodoPage,
-  serveFile,
-  addItem,
-  logRequest,
-  serveTodo,
+  deleteTodo,
+  renderAddTodoPage,
   serveItems,
-  deleteGivenItem,
-  deleteGivenTodo,
+  renderEditTodoPage,
+  editTodo
+} = require('./todosHandler');
+
+const {
+  deleteItem,
   toggle,
-  serveEditPage,
   editItem,
-  serveHomePage,
-  serveSignUpPage,
+  renderEditPage,
+  addItem,
+  renderTodo,
+  renderAddItemPage
+} = require('./todoHandler');
+
+const {
+  readBody,
+  serveFile,
+  logRequest,
+  renderHomePage,
+  renderSignUpPage,
   login
 } = require("./handlers");
 
@@ -80,19 +88,21 @@ app.use(readBody);
 app.use(logRequest);
 app.post("/todoList", addTodo.bind(null, fs, lists, cache));
 app.post(/\/addItem/, addItem.bind(null, fs, lists, cache));
-app.post(/\/serveAddItemPage/, serveAddItemPage.bind(null, cache));
-app.post(/\/serveEditPage/, serveEditPage.bind(null, cache));
+app.post(/\/serveAddItemPage/, renderAddItemPage.bind(null, cache));
+app.post(/\/serveEditPage/, renderEditPage.bind(null, cache));
 app.post("/editItem", editItem.bind(null, lists, fs));
 app.get("/todos", serveTodos.bind(null, lists));
 app.get(/\/todoItems?/, serveItems.bind(null, lists));
-app.post("/deleteItem", deleteGivenItem.bind(null, lists, fs));
+app.post("/deleteItem", deleteItem.bind(null, lists, fs));
 app.post("/toggleStatus", toggle.bind(null, lists, fs));
-app.post("/deleteList", deleteGivenTodo.bind(null, lists, fs));
+app.post("/deleteList", deleteTodo.bind(null, lists, fs));
+app.post('/renderEditTodoPage',renderEditTodoPage.bind(null, cache))
+app.post('/editTodo',editTodo.bind(null,lists,fs))
 app.get("/todoList", renderTodos.bind(null, cache));
-app.get("/add?", serveAddTodoPage.bind(null, cache));
-app.get(/\/list?/, serveTodo.bind(null, cache));
-app.get("/index", serveHomePage.bind(null, cache));
-app.get("/signUpPage", serveSignUpPage.bind(null, cache));
+app.get("/add?", renderAddTodoPage.bind(null, cache));
+app.get(/\/list?/, renderTodo.bind(null, cache));
+app.get("/index", renderHomePage.bind(null, cache));
+app.get("/signUpPage", renderSignUpPage.bind(null, cache));
 app.get("/login", login.bind(null, cache));
 app.use(serveFile.bind(null, cache));
 
