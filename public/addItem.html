@@ -17,7 +17,7 @@
     <main id="itemContainer" class="formContainer">
       <br />
       <form action="/addItem?#title#" method="POST" class="addTodo">
-        <input type="text" id="item" name="item" style="height:50px" placeholder="Enter new item into #title#"/><br />
+        <input type="text" id="item" name="item" style="height:50px" placeholder="Enter new item into #title#" required autofocus/><br />
         <input type="hidden" name="todoId" value="#id#"/>
         <input type="hidden" name="title" value="#title#"/>
         <input type="submit" value="Add" class="addButton"/>
