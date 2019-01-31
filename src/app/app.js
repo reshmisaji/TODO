@@ -10,20 +10,14 @@ const {
   renderAddTodoPage,
   serveItems,
   renderEditTodoPage,
-  editTodo
-} = require('./todosHandler');
-
-const {
+  editTodo,
   deleteItem,
   toggle,
   editItem,
   renderEditPage,
   addItem,
   renderTodo,
-  renderAddItemPage
-} = require('./todoHandler');
-
-const {
+  renderAddItemPage,
   readBody,
   serveFile,
   logRequest,
@@ -31,7 +25,7 @@ const {
   renderSignUpPage,
   login,
   addUser
-} = require("./handlers");
+} = require('./handlers');
 
 const { Express } = require("./express");
 const app = new Express();
@@ -42,7 +36,7 @@ let userCredentials;
 
 const readUserCredentialsFile = function(fs) {
   if (!fs.existsSync("./userCredentials.json")) {
-    fs.writeFileSync("./userCredentials.json", "{}");
+    fs.writeFileSync("./userCredentials.json", "[]");
   }
   return JSON.parse(fs.readFileSync("./userCredentials.json"));
 };
