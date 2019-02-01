@@ -1,6 +1,5 @@
 class Lists {
-  constructor(userName, lists, currentId = 0) {
-    this.userName = userName;
+  constructor(lists, currentId = 0) {
     this.currentId = currentId;
     this.lists = this.addId(lists);
   }
@@ -28,9 +27,5 @@ class Lists {
     this.lists[index] = newList;
   }
 }
-
-const isNotEqual = function(first, second) {
-  return first.title != second.title;
-};
 
 module.exports = Lists;

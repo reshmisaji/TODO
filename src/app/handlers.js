@@ -1,8 +1,46 @@
 const Item = require("../todo_item");
 const List = require("../todo_list");
-const Lists = require('../todo_lists');
+const Lists = require("../todo_lists");
 
 const ERROR_404 = "404: Resource Not Found";
+let users = {};
+let todo;
+let todos;
+
+const readTodoFile = function(fs) {
+  if (!fs.existsSync("./todos.json")) {
+    fs.writeFileSync("./todos.json", "{}");
+  }
+  return JSON.parse(fs.readFileSync("./todos.json"));
+};
+
+const initialiseListItems = function(users) {
+  Object.keys(users).forEach(user =>
+    users[user].lists.forEach(list => {
+      list.items = list.items.map(
+        item => new Item(item.description, item.status)
+      );
+    })
+  );
+  return users;
+};
+
+const initialiseTodoLists = function(users, userId) {
+  let todos;
+  Object.keys(users).filter(user => user == userId).forEach(user => {
+    users[user].lists = users[user].lists.map(
+      list => new List(list.title, list.items)
+    );
+    todos = users[user].lists;
+  });
+  return todos || [];
+};
+
+const readTodo = function(fs, userId) {
+  let content = readTodoFile(fs);
+  content = initialiseListItems(content);
+  todo = initialiseTodoLists(content, userId);
+};
 
 const initialiseTodo = function(todoInfo) {
   const todoItem = new Item(todoInfo.item);
@@ -93,32 +131,36 @@ const renderSignUpPage = function(cache, req, res) {
   send(res, cache["./signUp.html"], 200);
 };
 
-const addUser = function(fs, userCredentials, req, res){
-  const {userId, userName, password} = readArgs(decodeData(req.body));
-  userCredentials[userId]= {userName, password};
-  fs.writeFile('./userCredentials.json',JSON.stringify(userCredentials),()=>{})
-  redirect(res, '/login',302);
-}
+const addUser = function(fs, userCredentials, req, res) {
+  const { userId, userName, password } = readArgs(decodeData(req.body));
+  userCredentials[userId] = { userName, password };
+  fs.writeFile(
+    "./userCredentials.json",
+    JSON.stringify(userCredentials),
+    () => {}
+  );
+  redirect(res, "/login", 302);
+};
 
-const deleteItem = function(todos, fs, req, res) {
+const deleteItem = function(fs, req, res) {
   const { id, elementInfo } = getElementDetails(req.body, todos);
   elementInfo.deleteItem(id);
-  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
   send(res, JSON.stringify([elementInfo]), 200);
 };
 
-const toggle = function(todos, fs, req, res) {
+const toggle = function(fs, req, res) {
   const { id, elementInfo } = getElementDetails(req.body, todos);
   elementInfo.items.forEach(item => {
     if (item.id == id) {
       item.toggleStatus();
     }
   });
-  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
   send(res, JSON.stringify([elementInfo]), 200);
 };
 
-const editItem = function(todos, fs, { body }, res) {
+const editItem = function(fs, { body }, res) {
   const itemToUpdate = readArgs(decodeData(body));
   const { id, elementInfo } = getElementDetails(
     JSON.stringify(itemToUpdate),
@@ -127,7 +169,7 @@ const editItem = function(todos, fs, { body }, res) {
   elementInfo.items.forEach(item => {
     if (item.id == id) item.edit(itemToUpdate.item);
   });
-  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
   const urlToRedirect = `list?title=${elementInfo.title}&id=${
     itemToUpdate.todoId
   }`;
@@ -155,12 +197,12 @@ const renderEditPage = function(cache, req, res) {
   send(res, editItemPage, 200);
 };
 
-const addItem = function(fs, todos, cache, req, res) {
+const addItem = function(fs, cache, req, res) {
   const itemToAdd = readArgs(decodeData(req.body));
   const { elementInfo } = getElementDetails(JSON.stringify(itemToAdd), todos);
   const item = new Item(itemToAdd.item);
   elementInfo.addItem(item);
-  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
   const urlToRedirect = `list?title=${elementInfo.title}&id=${
     itemToAdd.todoId
   }`;
@@ -186,23 +228,23 @@ const renderTodos = function(cache, req, res) {
   send(res, cache["./todolist.html"], 200);
 };
 
-const addTodo = function(fs, todos, cache, req, res) {
+const addTodo = function(fs, cache, req, res) {
   const todoDetails = readArgs(req.body);
   append(todoDetails, todos);
-  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
   renderTodos(cache, req, res);
 };
 
-const serveTodos = function(todos, req, res) {
+const serveTodos = function(req, res) {
   send(res, JSON.stringify(todos.lists), 200);
 };
 
-const deleteTodo = function(todos, fs, req, res) {
+const deleteTodo = function(fs, req, res) {
   const { elementInfo } = getElementDetails(req.body, todos);
   const todoToDeleteDetails = new List(elementInfo.title, elementInfo.items);
   todoToDeleteDetails.id = elementInfo.id;
   todos.deleteList(todoToDeleteDetails);
-  fs.writeFile("./todos.json", JSON.stringify([todos]), () => {});
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
   send(res, JSON.stringify(todos.lists), 200);
 };
 
@@ -210,31 +252,50 @@ const renderAddTodoPage = function(cache, req, res) {
   send(res, cache["./todoForm.html"], 200);
 };
 
-const serveItems = function(todos, req, res) {
+const serveItems = function(req, res) {
   const id = extractTitle(req.url);
   const requiredList = todos.lists.filter(todo => todo.id == id);
   send(res, JSON.stringify(requiredList), 200);
 };
 
-const renderEditTodoPage = function(cache, req, res){
-  const {title, todoId} = JSON.parse(req.body);
+const renderEditTodoPage = function(cache, req, res) {
+  const { title, todoId } = JSON.parse(req.body);
   const editItemPage = cache["./editTodo.html"]
     .toString()
     .replace(/#todoId#/g, todoId)
-    .replace(/#title#/g, title)
+    .replace(/#title#/g, title);
   send(res, editItemPage, 200);
-}
+};
 
-const editTodo = function(todos, fs, req, res){
+const editTodo = function(fs, req, res) {
   const todoToEdit = readArgs(decodeData(req.body));
-  const {elementInfo} = getElementDetails(JSON.stringify(todoToEdit),todos);
+  const { elementInfo } = getElementDetails(JSON.stringify(todoToEdit), todos);
   elementInfo.editTitle(todoToEdit.title);
-  fs.writeFile('./todos.json',JSON.stringify([todos]),()=>{});
-  redirect(res, '/todoList',302);
-}
+  fs.writeFile("./todos.json", JSON.stringify(users), () => {});
+  redirect(res, "/todoList", 302);
+};
+
+const handleLogin = function(userCredentials, fs, req, res) {
+  const { userId, password } = readArgs(decodeData(req.body));
+  readTodo(fs, userId);
+  users[userId] = new Lists(todo);
+  if (userCredentials[userId] && userCredentials[userId].password == password) {
+    todos = users[userId];
+    fs.writeFile("./todos.json", JSON.stringify(users), () => {});
+    redirect(res, "/todoList", 302);
+    return;
+  }
+  redirect(res, "/login", 302);
+};
 
 const login = function(cache, req, res) {
-  send(res, cache['./index.html'], 200);
+  send(res, cache["./index.html"], 200);
+};
+
+const logout = function(cache, req, res) {
+  todos = {};
+  console.log(todos)
+  redirect(res, "/login", 302);
 };
 
 module.exports = {
@@ -266,5 +327,8 @@ module.exports = {
   editItem,
   renderTodo,
   renderTodos,
-  renderEditPage
+  renderEditPage,
+  handleLogin,
+  readTodo,
+  logout
 };

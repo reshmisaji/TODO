@@ -1,3 +1,9 @@
+const logout = function(){
+  fetch("/logout")
+  .then(res => res.text())
+  .then(html => document.documentElement.innerHTML= html);
+}
+
 const addTodo = function() {
   fetch("/add")
     .then(res => res.text())
