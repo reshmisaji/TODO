@@ -97,7 +97,7 @@ const addUser = function(fs, userCredentials, req, res){
   const {userId, userName, password} = readArgs(decodeData(req.body));
   userCredentials[userId]= {userName, password};
   fs.writeFile('./userCredentials.json',JSON.stringify(userCredentials),()=>{})
-  redirect(res, '/todoList',302);
+  redirect(res, '/login',302);
 }
 
 const deleteItem = function(todos, fs, req, res) {
@@ -233,8 +233,8 @@ const editTodo = function(todos, fs, req, res){
   redirect(res, '/todoList',302);
 }
 
-const login = function(arguments) {
-  return;
+const login = function(cache, req, res) {
+  send(res, cache['./index.html'], 200);
 };
 
 module.exports = {

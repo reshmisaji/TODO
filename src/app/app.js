@@ -36,34 +36,34 @@ let userCredentials;
 
 const readUserCredentialsFile = function(fs) {
   if (!fs.existsSync("./userCredentials.json")) {
-    fs.writeFileSync("./userCredentials.json", "[]");
+    fs.writeFileSync("./userCredentials.json", "{}");
   }
   return JSON.parse(fs.readFileSync("./userCredentials.json"));
 };
 
 const readTodoFile = function(fs) {
   if (!fs.existsSync("./todos.json")) {
-    fs.writeFileSync("./todos.json", "[]");
+    fs.writeFileSync("./todos.json", "{}");
   }
   return JSON.parse(fs.readFileSync("./todos.json"));
 };
 
-const initialiseListItems = function(content) {
-  content.forEach(user =>
-    user.lists.forEach(list => {
+const initialiseListItems = function(users) {
+  Object.keys(users).forEach(user =>
+    users[user].lists.forEach(list => {
       list.items = list.items.map(
         item => new Item(item.description, item.status)
       );
     })
   );
-  return content;
+  return users;
 };
 
-const initialiseTodoLists = function(content) {
+const initialiseTodoLists = function(users) {
   let todos;
-  content.forEach(user => {
-    user.lists = user.lists.map(list => new List(list.title, list.items));
-    todos = user.lists;
+  Object.keys(users).forEach(user => {
+    users[user].lists = users[user].lists.map(list => new List(list.title, list.items));
+    todos = users[user].lists;
   });
   return todos || [];
 };
