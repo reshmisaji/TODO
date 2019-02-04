@@ -80,7 +80,7 @@ app.get("/signUpPage", renderSignUpPage.bind(null));
 app.get("/login", login.bind(null));
 app.get("/logout", logout.bind(null));
 
-app.listen(process.env(8080) || 8080);
+app.listen(process.env.PORT || 8080);
 // const requestHandler = app.handleRequest.bind(app);
 // module.exports = {
 //   requestHandler
