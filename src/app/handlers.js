@@ -1,11 +1,34 @@
 const Item = require("../todo_item");
 const List = require("../todo_list");
 const Lists = require("../todo_lists");
+const url = require('url');
 
-const ERROR_404 = "404: Resource Not Found";
 let users = {};
 let todo;
-let todos;
+let cookies = [];
+const restrictedPaths = [
+  "/todoList",
+  "/addItem",
+  "/serveAddItemPage",
+  "/serveEditPage",
+  "/editItem",
+  "/todos",
+  /\/todoItems?/,
+  "/deleteItem",
+  "/toggleStatus",
+  "/deleteList",
+  "/renderEditTodoPage",
+  "/editTodo",
+  "/todoList",
+  "/add?",
+  /\/list?/
+];
+
+const allowedPaths = ["/userSignUp", "/login", "/signUpPage", "/index"];
+
+const getUserId = function(cookie) {
+  return cookie.id;
+};
 
 const readTodoFile = function(fs) {
   if (!fs.existsSync("./todos.json")) {
@@ -27,12 +50,14 @@ const initialiseListItems = function(users) {
 
 const initialiseTodoLists = function(users, userId) {
   let todos;
-  Object.keys(users).filter(user => user == userId).forEach(user => {
-    users[user].lists = users[user].lists.map(
-      list => new List(list.title, list.items)
-    );
-    todos = users[user].lists;
-  });
+  Object.keys(users)
+    .filter(user => user == userId)
+    .forEach(user => {
+      users[user].lists = users[user].lists.map(
+        list => new List(list.title, list.items)
+      );
+      todos = users[user].lists;
+    });
   return todos || [];
 };
 
@@ -48,15 +73,6 @@ const initialiseTodo = function(todoInfo) {
   return todo;
 };
 
-const getRequestedFilePath = function(url) {
-  return `.${url}`;
-};
-
-const logRequest = (req, res, next) => {
-  console.log(req.method, req.url);
-  next();
-};
-
 const decodeData = function(data) {
   return unescape(data.replace(/\+/g, " "));
 };
@@ -67,50 +83,9 @@ const redirect = function(res, location, statusCode = 302) {
   res.end();
 };
 
-const send = function(res, data, statusCode = 200) {
-  res.statusCode = statusCode;
-  res.write(data);
-  res.end();
-};
-
-const serveData = function(res, fileContent) {
-  try {
-    send(res, fileContent, 200);
-  } catch (err) {
-    send(res, ERROR_404, 404);
-  }
-};
-
-const serveFile = function(cache, req, res) {
-  const requestedFilePath = getRequestedFilePath(req.url);
-  const fileContent = cache[requestedFilePath];
-  serveData(res, fileContent);
-};
-
-const splitKeyValue = pair => pair.split("=");
-
-const readArgs = text => {
-  const assignKeyValueToArgs = ([key, value]) => (args[key] = value);
-  let args = {};
-  text
-    .split("&")
-    .map(splitKeyValue)
-    .forEach(assignKeyValueToArgs);
-  return args;
-};
-
 const getDecodeData = function(todo) {
   const todoInfo = decodeData(JSON.stringify(todo));
   return initialiseTodo(JSON.parse(todoInfo));
-};
-
-const readBody = function(req, res, next) {
-  let content = "";
-  req.on("data", chunk => (content += chunk));
-  req.on("end", () => {
-    req.body = content;
-    next();
-  });
 };
 
 const extractTitle = function(args) {
@@ -123,16 +98,16 @@ const getElementDetails = function(data, todos) {
   return { id, elementInfo };
 };
 
-const renderHomePage = function(cache, req, res) {
-  send(res, cache["./index.html"], 200);
+const renderHomePage = function( req, res) {
+  res.render("./index.html");
 };
 
-const renderSignUpPage = function(cache, req, res) {
-  send(res, cache["./signUp.html"], 200);
+const renderSignUpPage = function( req, res) {
+  res.render("./signUp.html");
 };
 
 const addUser = function(fs, userCredentials, req, res) {
-  const { userId, userName, password } = readArgs(decodeData(req.body));
+  const { userId, userName, password } = req.body;
   userCredentials[userId] = { userName, password };
   fs.writeFile(
     "./userCredentials.json",
@@ -143,13 +118,15 @@ const addUser = function(fs, userCredentials, req, res) {
 };
 
 const deleteItem = function(fs, req, res) {
+  const todos = users[getUserId(req.cookies)];
   const { id, elementInfo } = getElementDetails(req.body, todos);
   elementInfo.deleteItem(id);
   fs.writeFile("./todos.json", JSON.stringify(users), () => {});
-  send(res, JSON.stringify([elementInfo]), 200);
+  res.send(JSON.stringify([elementInfo]));
 };
 
 const toggle = function(fs, req, res) {
+  const todos = users[getUserId(req.cookies)];
   const { id, elementInfo } = getElementDetails(req.body, todos);
   elementInfo.items.forEach(item => {
     if (item.id == id) {
@@ -157,11 +134,12 @@ const toggle = function(fs, req, res) {
     }
   });
   fs.writeFile("./todos.json", JSON.stringify(users), () => {});
-  send(res, JSON.stringify([elementInfo]), 200);
+  res.send(JSON.stringify([elementInfo]));
 };
 
-const editItem = function(fs, { body }, res) {
-  const itemToUpdate = readArgs(decodeData(body));
+const editItem = function(fs, req, res) {
+  const todos = users[getUserId(req.cookies)];
+  const itemToUpdate = req.body;
   const { id, elementInfo } = getElementDetails(
     JSON.stringify(itemToUpdate),
     todos
@@ -176,29 +154,32 @@ const editItem = function(fs, { body }, res) {
   redirect(res, urlToRedirect, 302);
 };
 
-const renderTodo = function(cache, req, res) {
-  let { title, id } = readArgs(extractTitle(req.url));
+const renderTodo = function(req, res) {
+  let {title, id} = url.parse(req.url,true).query;
   title = decodeData(title);
-  const todoPage = cache["./list.html"]
-    .toString()
-    .replace(/#title#/g, title)
-    .replace(/#id#/g, id);
-  send(res, todoPage, 200);
+  res.render("list.html", (err, data)=>{
+    const html = data
+      .replace(/#title#/g, title)
+      .replace(/#id#/g, id);
+    res.send(html);
+  })
 };
 
-const renderEditPage = function(cache, req, res) {
+const renderEditPage = function( req, res) {
   const { id, todoId, title, description } = JSON.parse(req.body);
-  const editItemPage = cache["./editList.html"]
-    .toString()
-    .replace(/#id#/g, id)
-    .replace(/#todoId#/g, todoId)
-    .replace(/#title#/g, title)
-    .replace(/#description#/g, description);
-  send(res, editItemPage, 200);
+  res.render("editList.html", (err, data)=>{
+    const html = data
+      .replace(/#title#/g, title)
+      .replace(/#id#/g, id)
+      .replace(/#todoId#/g, todoId)
+      .replace(/#description#/g, description);
+    res.send(html);
+  })
 };
 
-const addItem = function(fs, cache, req, res) {
-  const itemToAdd = readArgs(decodeData(req.body));
+const addItem = function(fs,  req, res) {
+  const todos = users[getUserId(req.cookies)];
+  const itemToAdd = req.body;
   const { elementInfo } = getElementDetails(JSON.stringify(itemToAdd), todos);
   const item = new Item(itemToAdd.item);
   elementInfo.addItem(item);
@@ -209,14 +190,15 @@ const addItem = function(fs, cache, req, res) {
   redirect(res, urlToRedirect, 302);
 };
 
-const renderAddItemPage = function(cache, req, res) {
-  const { id } = readArgs(req.body);
-  const title = decodeData(extractTitle(req.url));
-  const addItemPage = cache["./addItem.html"]
-    .toString()
-    .replace(/#title#/g, title)
-    .replace(/#id#/g, id);
-  send(res, addItemPage, 200);
+const renderAddItemPage = function( req, res) {
+  const { id } = req.body;
+  let {title} = url.parse(req.url,true).query;
+  res.render("addItem.html", (err, data)=>{
+    const html = data
+      .replace(/#title#/g, title)
+      .replace(/#id#/g, id);
+    res.send(html);
+  })
 };
 
 const append = function(todo, todos) {
@@ -224,51 +206,58 @@ const append = function(todo, todos) {
   todos.addList(decodedTodo);
 };
 
-const renderTodos = function(cache, req, res) {
-  send(res, cache["./todolist.html"], 200);
+const renderTodos = function( req, res) {
+  res.render("todolist.html");
 };
 
-const addTodo = function(fs, cache, req, res) {
-  const todoDetails = readArgs(req.body);
+const addTodo = function(fs,  req, res) {
+  const todos = users[getUserId(req.cookies)];
+  const todoDetails = req.body;
   append(todoDetails, todos);
   fs.writeFile("./todos.json", JSON.stringify(users), () => {});
-  renderTodos(cache, req, res);
+  renderTodos( req, res);
 };
 
 const serveTodos = function(req, res) {
-  send(res, JSON.stringify(todos.lists), 200);
+  console.log(req.cookies);
+  const todos = users[getUserId(req.cookies)];
+  res.send(JSON.stringify(todos.lists));
 };
 
 const deleteTodo = function(fs, req, res) {
+  const todos = users[getUserId(req.cookies)];
   const { elementInfo } = getElementDetails(req.body, todos);
   const todoToDeleteDetails = new List(elementInfo.title, elementInfo.items);
   todoToDeleteDetails.id = elementInfo.id;
   todos.deleteList(todoToDeleteDetails);
   fs.writeFile("./todos.json", JSON.stringify(users), () => {});
-  send(res, JSON.stringify(todos.lists), 200);
+  res.send(JSON.stringify(todos.lists));
 };
 
-const renderAddTodoPage = function(cache, req, res) {
-  send(res, cache["./todoForm.html"], 200);
+const renderAddTodoPage = function( req, res) {
+  res.render("./todoForm.html");
 };
 
 const serveItems = function(req, res) {
+  const todos = users[getUserId(req.cookies)];
   const id = extractTitle(req.url);
   const requiredList = todos.lists.filter(todo => todo.id == id);
-  send(res, JSON.stringify(requiredList), 200);
+  res.send(JSON.stringify(requiredList));
 };
 
-const renderEditTodoPage = function(cache, req, res) {
+const renderEditTodoPage = function( req, res) {
   const { title, todoId } = JSON.parse(req.body);
-  const editItemPage = cache["./editTodo.html"]
-    .toString()
-    .replace(/#todoId#/g, todoId)
-    .replace(/#title#/g, title);
-  send(res, editItemPage, 200);
+  res.render("editTodo.html", (err, data)=>{
+    const html = data
+      .replace(/#title#/g, title)
+      .replace(/#todoId#/g, todoId);
+    res.send(html);
+  })
 };
 
 const editTodo = function(fs, req, res) {
-  const todoToEdit = readArgs(decodeData(req.body));
+  const todos = users[getUserId(req.cookies)];
+  const todoToEdit = req.body;
   const { elementInfo } = getElementDetails(JSON.stringify(todoToEdit), todos);
   elementInfo.editTitle(todoToEdit.title);
   fs.writeFile("./todos.json", JSON.stringify(users), () => {});
@@ -276,10 +265,14 @@ const editTodo = function(fs, req, res) {
 };
 
 const handleLogin = function(userCredentials, fs, req, res) {
-  const { userId, password } = readArgs(decodeData(req.body));
+  const { userId, password } = req.body;
   readTodo(fs, userId);
   users[userId] = new Lists(todo);
   if (userCredentials[userId] && userCredentials[userId].password == password) {
+    // const cookie = `id=${userId};token=${new Date().toString()}`;
+    cookies.push({ id: userId });
+    res.cookie("id", userId, { encode: String });
+    // res.setHeader("Set-Cookie", cookie);
     todos = users[userId];
     fs.writeFile("./todos.json", JSON.stringify(users), () => {});
     redirect(res, "/todoList", 302);
@@ -288,25 +281,41 @@ const handleLogin = function(userCredentials, fs, req, res) {
   redirect(res, "/login", 302);
 };
 
-const login = function(cache, req, res) {
-  send(res, cache["./index.html"], 200);
+const login = function( req, res) {
+  res.render("index.html");
 };
 
-const logout = function(cache, req, res) {
-  todos = {};
-  console.log(todos)
+const logout = function( req, res) {
+  // todos = {};
+  res.setHeader("Set-Cookie", "id=;expires=Thu, 01 Jan 1970 00:00:01 GMT;");
   redirect(res, "/login", 302);
 };
 
+const isPresent = function(source, element) {
+  return source.filter(x => x.id == element.id).length;
+};
+
+const validateCookie = function(req, res, next) {
+  const cookie = req.cookies;
+  if (restrictedPaths.includes(req.url)) {
+    if (cookie.id && isPresent(cookies, cookie)) {
+      next();
+      return;
+    }
+    redirect(res, "/login", 302);
+    return;
+  }
+  if (allowedPaths.includes(req.url) && cookie.id) {
+    redirect(res, "/todoList", 302);
+    return;
+  }
+  next();
+};
+
 module.exports = {
-  readBody,
-  serveFile,
   decodeData,
   redirect,
   getDecodeData,
-  send,
-  readArgs,
-  logRequest,
   extractTitle,
   getElementDetails,
   renderHomePage,
@@ -330,5 +339,6 @@ module.exports = {
   renderEditPage,
   handleLogin,
   readTodo,
-  logout
+  logout,
+  validateCookie
 };
