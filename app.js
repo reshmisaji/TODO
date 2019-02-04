@@ -29,7 +29,8 @@ const {
   handleLogin,
   readTodo,
   logout,
-  validateCookie
+  validateCookie,
+  renderHome
 } = require("./src/app/handlers");
 
 
@@ -58,6 +59,7 @@ app.use(express.static('public/css'));
 app.use(express.static('public/scripts'));
 
 app.use(validateCookie);
+app.get('/',renderHome);
 app.post("/todoList", addTodo.bind(null, fs));
 app.post(/\/addItem/, addItem.bind(null, fs));
 app.post(/\/serveAddItemPage/, renderAddItemPage.bind(null));

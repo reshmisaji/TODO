@@ -26,6 +26,10 @@ const restrictedPaths = [
 
 const allowedPaths = ["/userSignUp", "/login", "/signUpPage", "/index"];
 
+const renderHome = function(req, res){
+  res.redirect('/login');
+}
+
 const getUserId = function(cookie) {
   return cookie.id;
 };
@@ -341,5 +345,6 @@ module.exports = {
   handleLogin,
   readTodo,
   logout,
-  validateCookie
+  validateCookie,
+  renderHome
 };
