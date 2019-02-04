@@ -13,15 +13,15 @@ const restrictedPaths = [
   "/serveEditPage",
   "/editItem",
   "/todos",
-  /\/todoItems?/,
+  "/todoItems",
   "/deleteItem",
   "/toggleStatus",
   "/deleteList",
   "/renderEditTodoPage",
   "/editTodo",
   "/todoList",
-  "/add?",
-  /\/list?/
+  "/add",
+  "/list"
 ];
 
 const allowedPaths = ["/userSignUp", "/login", "/signUpPage", "/index"];
@@ -297,7 +297,8 @@ const isPresent = function(source, element) {
 
 const validateCookie = function(req, res, next) {
   const cookie = req.cookies;
-  if (restrictedPaths.includes(req.url)) {
+  const {pathname} = url.parse(req.url, true)
+  if (restrictedPaths.includes(pathname)) {
     if (cookie.id && isPresent(cookies, cookie)) {
       next();
       return;
